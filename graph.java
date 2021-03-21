@@ -1,19 +1,25 @@
 
 // Exemplo de pesquisa em largura (BFS) num grafo nao dirigido
 // (similar ao codigo feito na teorica - inclui calculo de distancias)
-
+package utils; 
 import java.io.*;
 import java.util.*;
+import java.awt.geom.Point2D;
 
 // Classe que representa um no
 class Node {
     public LinkedList<Integer> adj; // Lista de adjacencias
     public boolean visited;         // Valor booleano que indica se foi visitado numa pesquisa
     public int distance;            // Distancia ao no origem da pesquisa
+	Point2D xy;
 
     Node() {
 	adj = new LinkedList<Integer>();      //uma lista com os seus nos visinhos
     }
+
+	public void coordenates(int x, int y){
+		xy = new Point2D(x, y);
+	}
 }
 
 // Classe que representa um grafo
@@ -52,19 +58,5 @@ class Graph {
 		    nodes[w].distance = nodes[u].distance + 1;                   //a distancia de (w) é a distancia do no pai mais 1
 		}	    
 	}
-    }
-}
-
-public class BFS {
-    public static void main(String args[]) {
-	Scanner in = new Scanner(System.in);
-
-	Graph g = new Graph(in.nextInt());
-	int   e = in.nextInt();
-	for (int i=0; i<e; i++) 
-	    g.addLink(in.nextInt(), in.nextInt());
-
-	// Pesquisa em largura a partir do no 1
-	g.bfs(1);		
     }
 }
