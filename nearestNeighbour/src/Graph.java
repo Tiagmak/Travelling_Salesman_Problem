@@ -32,4 +32,18 @@ public class Graph {
         nodes.addLast(n);
     }
 
+    public boolean contains(Point thisp) {
+        int i = 0;
+
+        if (nodes.size() == 0) return false;
+
+        while (i < nodes.size()) {
+            if (nodes.get(i).p.equals(thisp)) {
+                return true;
+            }
+            ++i;
+        }
+        return false;
+    }
+
 }

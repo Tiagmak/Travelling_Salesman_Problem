@@ -20,10 +20,9 @@ public class Nearest {
             int y = (int) (Math.random() * (max - min + 1) + min);
 
             Point p = new Point(x, y);
-            Node node = new Node(p);
 
             // check if already in
-            if (!g.nodes.contains(node)){
+            if (!g.contains(p)){
                 // add if not in
                 g.addPoint(p);
 
