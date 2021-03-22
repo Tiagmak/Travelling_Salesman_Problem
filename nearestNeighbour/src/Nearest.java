@@ -2,19 +2,8 @@ import java.awt.*;
 import java.util.Scanner;
 
 public class Nearest {
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int n, min, max;
 
-        // ask stuff
-        System.out.println("Quantos pontos? ");
-        n = in.nextInt();
-        System.out.println("Limite inferior e superior? ");
-        min = in.nextInt();
-        max = in.nextInt();
-
-        Graph g = new Graph(n);
-
+    public static void graphRandom(Graph g, int n, int min, int max) {
         for (int i = 0; i < n; ++i) {
             int x = (int) (Math.random() * (max - min + 1) + min);
             int y = (int) (Math.random() * (max - min + 1) + min);
@@ -31,5 +20,38 @@ public class Nearest {
                 System.out.println(":((((((");
             }
         }
+    }
+
+    public static void linkRandom(Graph g) {
+        for (int i = 0; i < g.getSize(); ++i) {
+            int randA = (int) (Math.random() * (g.getSize()));
+            int randB = (int) (Math.random() * (g.getSize()));
+
+            Node a = g.nodes.get(randA);
+            Node b = g.nodes.get(randB);
+
+            if (!g.containsLink(a, b)) {
+                g.addLink(a, b);
+                System.out.println(g.nodes.get(randA) + " connected to " + g.nodes.get(randB));
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n, min, max;
+
+        // ask stuff
+        System.out.println("Quantos pontos? ");
+        n = in.nextInt();
+        System.out.println("Limite inferior e superior? ");
+        min = in.nextInt();
+        max = in.nextInt();
+
+        Graph g = new Graph();
+        graphRandom(g, n, min, max);
+
+        linkRandom(g);
+
     }
 }

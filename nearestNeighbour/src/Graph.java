@@ -18,8 +18,12 @@ class Node {
 public class Graph {
     public LinkedList<Node> nodes;
 
-    public Graph(int n) {
+    public Graph() {
         nodes = new LinkedList<Node>();
+    }
+
+    public int getSize() {
+        return nodes.size();
     }
 
     public void addLink(Node a, Node b) {
@@ -43,6 +47,14 @@ public class Graph {
             }
             ++i;
         }
+        return false;
+    }
+
+    public boolean containsLink(Node a, Node b) {
+        if (a.equals(b)) return true;
+        if (nodes.get(nodes.indexOf(a)).adj.contains(b)) return true;
+        if (nodes.get(nodes.indexOf(b)).adj.contains(a)) return true;
+
         return false;
     }
 
