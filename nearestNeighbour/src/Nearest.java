@@ -7,9 +7,9 @@ public class Nearest {
         int n, min, max;
 
         // ask stuff
-        System.out.println("Quantos pontos?\n");
+        System.out.println("Quantos pontos? ");
         n = in.nextInt();
-        System.out.println("Limite inferior e superior?\n");
+        System.out.println("Limite inferior e superior? ");
         min = in.nextInt();
         max = in.nextInt();
 
@@ -20,9 +20,17 @@ public class Nearest {
             int y = (int) (Math.random() * (max - min + 1) + min);
 
             Point p = new Point(x, y);
+            Node node = new Node(p);
 
-            System.out.println("x: " + p.getX() + "\t" + "y: " + p.getY() + "\t\n");
-            g.addPoint(i, p);
+            // check if already in
+            if (!g.nodes.contains(node)){
+                // add if not in
+                g.addPoint(p);
+
+                System.out.println("x: " + p.getX() + "\t" + "y: " + p.getY() + " " + g.nodes + "\t\n");
+            } else {
+                System.out.println(":((((((");
+            }
         }
     }
 }

@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+nearestNeighbour/nearestNeighbour.iml
+out/*
+
 # Log file
 *.log
 

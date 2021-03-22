@@ -4,34 +4,32 @@ import java.util.LinkedList;
 
 // Classe que representa um no
 class Node {
-    public LinkedList<Integer> adj;
+    public LinkedList<Node> adj;
     public boolean visited;
     public int distance;
-    Point2D xy;
+    Point2D p;
 
-    Node() {
-        adj = new LinkedList<Integer>();
+    Node(Point p) {
+        this.adj = new LinkedList<Node>();
+        this.p = p;
     }
 }
 
 public class Graph {
-    public int n;
-    public Node[] nodes;
+    public LinkedList<Node> nodes;
 
     public Graph(int n) {
-        this.n = n;
-        nodes = new Node[n];
-        for (int i = 0; i < n; i++)
-            nodes[i] = new Node();
+        nodes = new LinkedList<Node>();
     }
 
-    public void addLink(int a, int b) {
-        nodes[a].adj.add(b);
-        nodes[b].adj.add(a);
+    public void addLink(Node a, Node b) {
+        nodes.get(nodes.indexOf(a)).adj.add(b);
+        nodes.get(nodes.indexOf(b)).adj.add(a);
     }
 
-    public void addPoint(int n, Point p) {
-        nodes[n].xy = new Point(p);
+    public void addPoint(Point p) {
+        Node n = new Node(p);
+        nodes.addLast(n);
     }
 
 }
