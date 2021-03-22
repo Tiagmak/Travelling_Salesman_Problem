@@ -6,7 +6,7 @@ import java.util.LinkedList;
 class Node {
     public LinkedList<Node> adj;
     public boolean visited;
-    public int distance;
+    //public int distance;
     Point2D p;
 
     Node(Point p) {
@@ -56,6 +56,53 @@ public class Graph {
         if (nodes.get(nodes.indexOf(b)).adj.contains(a)) return true;
 
         return false;
+    }
+
+
+
+    Node inicial;
+    public void find_nearest(Node a){
+
+        a.visited = true;
+        int flag = 0;
+        double distance = 0;                               ///
+        Node proximo = null;                               ///
+        int i = 0;
+        int elimina =0;
+
+        while (i < nodes.size()) {
+            Node T = nodes.get(i);
+            if (!T.equals(a)) {                           //para nao pegar nele próprio
+                if(!T.visited){                           //ainda nao foi visitado
+                    if(flag == 0){
+                        flag = 1;
+                        elimina = i;
+                        distance = a.p.distance(T.p);
+                        //System.out.println("yooo " +T);
+                        proximo = nodes.get(i);
+                    }
+                    else{
+                        if(a.p.distance(T.p) < distance){
+                            distance = a.p.distance(T.p);
+                            proximo = nodes.get(i);
+                            elimina = i;
+                            //System.out.println("é o indice " +i);
+                        }
+                    }
+                }
+                //System.out.println("yooo" +T);
+            }
+            ++i;
+        }
+
+        if (flag == 1){
+            addLink(a, proximo);
+            System.out.println("vai para " +elimina);
+            find_nearest(proximo);
+        }
+        else{
+            addLink(a, inicial);
+        }
     }
 
 }

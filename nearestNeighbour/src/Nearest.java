@@ -15,7 +15,7 @@ public class Nearest {
                 // add if not in
                 g.addPoint(p);
 
-                System.out.println("x: " + p.getX() + "\t" + "y: " + p.getY() + " " + g.nodes + "\t\n");
+                System.out.println("x: " + p.getX() + "\t" + "y: " + p.getY() + " " + g.nodes + "\t\n" + "indice " +i);
             } else {
                 System.out.println(":((((((");
             }
@@ -37,6 +37,20 @@ public class Nearest {
         }
     }
 
+
+    public static void nearest(Graph g){
+        int randA = (int) (Math.random() * (g.getSize()));
+        System.out.println("começa em "+randA);
+        Node a = g.nodes.get(randA);
+
+        g.inicial = g.nodes.get(randA);
+        
+        g.find_nearest(a);
+        System.out.println("vai para " +randA);
+
+    }
+
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         int n, min, max;
@@ -51,7 +65,9 @@ public class Nearest {
         Graph g = new Graph();
         graphRandom(g, n, min, max);
 
-        linkRandom(g);
+        //linkRandom(g);
+
+        nearest(g);
 
     }
 }
