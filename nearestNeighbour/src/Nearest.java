@@ -21,7 +21,7 @@ public class Nearest {
             }
         }
     }
-
+/*
     public static void linkRandom(Graph g) {
         for (int i = 0; i < g.getSize(); ++i) {
             int randA = (int) (Math.random() * (g.getSize()));
@@ -36,17 +36,15 @@ public class Nearest {
             }
         }
     }
-
+*/
 
     public static void nearest(Graph g){
         int randA = (int) (Math.random() * (g.getSize()));
         System.out.println("começa em "+randA);
         Node a = g.nodes.get(randA);
-
-        g.inicial = g.nodes.get(randA);
         
         g.find_nearest(a);
-        System.out.println("vai para " +randA);
+        //System.out.println("vai para " +randA);
 
     }
 
@@ -71,3 +69,4 @@ public class Nearest {
 
     }
 }
+

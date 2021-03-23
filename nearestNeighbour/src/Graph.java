@@ -4,37 +4,41 @@ import java.util.LinkedList;
 
 // Classe que representa um no
 class Node {
-    public LinkedList<Node> adj;
+    //public LinkedList<Node> adj;
     public boolean visited;
     //public int distance;
     Point2D p;
 
     Node(Point p) {
-        this.adj = new LinkedList<Node>();
+        //this.adj = new LinkedList<Node>();
         this.p = p;
     }
 }
 
 public class Graph {
     public LinkedList<Node> nodes;
+    public LinkedList<Node> nearest;
 
     public Graph() {
         nodes = new LinkedList<Node>();
+        nearest = new LinkedList<Node>();
     }
 
     public int getSize() {
         return nodes.size();
     }
 
-    public void addLink(Node a, Node b) {
-        nodes.get(nodes.indexOf(a)).adj.add(b);
-        nodes.get(nodes.indexOf(b)).adj.add(a);
-    }
-
-    public void addPoint(Point p) {
+    public void addPoint(Point p) {   //add a node with a point
         Node n = new Node(p);
         nodes.addLast(n);
     }
+
+
+    public void addPointNearest(Point p) {   //add a node with a point
+        Node n = new Node(p);
+        nearest.addLast(n);
+    }
+
 
     public boolean contains(Point thisp) {
         int i = 0;
@@ -50,17 +54,8 @@ public class Graph {
         return false;
     }
 
-    public boolean containsLink(Node a, Node b) {
-        if (a.equals(b)) return true;
-        if (nodes.get(nodes.indexOf(a)).adj.contains(b)) return true;
-        if (nodes.get(nodes.indexOf(b)).adj.contains(a)) return true;
-
-        return false;
-    }
 
 
-
-    Node inicial;
     public void find_nearest(Node a){
 
         a.visited = true;
@@ -96,13 +91,13 @@ public class Graph {
         }
 
         if (flag == 1){
-            addLink(a, proximo);
+            //addPointNearest(proximo.p);
             System.out.println("vai para " +elimina);
             find_nearest(proximo);
-        }
+        }/*
         else{
             addLink(a, inicial);
-        }
+        }*/
     }
 
 }
