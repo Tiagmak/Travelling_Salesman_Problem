@@ -11,15 +11,23 @@ class Node {
 }
 
 public class Graph {
+    int size;
+
+    double minPerimeter;
+
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
-    int size = 0;
+    LinkedList<Point> candidate1;
+    LinkedList<Point> candidate2;
+    LinkedList<Point> best;
 
     public Graph(int size) {
+        this.size = size;
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
-        this.size = size;
+        best = new LinkedList<>();
+
     }
 
     public boolean contains(Point givenPoint) {
@@ -34,6 +42,40 @@ public class Graph {
             ++i;
         }
         return false;
+    }
+
+    double acceptanceProbability(double min, double max, double temp) {
+        if (max < min)
+            return 1;
+        else
+            return Math.exp((min - max) / temp);
+    }
+
+    LinkedList<Point> randomList() {
+        int rand = (int) (Math.random() * ((candidates.size())));
+        return candidates.get(rand);
+    }
+
+    void simulatedAnnealing() {
+        LinkedList<Point> candidate;
+        double temperature = checkIntersections(this.best);
+        double min;
+        double max;
+
+        while (!candidates.isEmpty() && temperature > 0.0d) {
+
+            candidate = randomList();
+            min = minPerimeter;
+            max = getPerimeter(candidate);
+
+            if (acceptanceProbability(min, max, temperature) == 1) {
+                this.best = candidate;
+                minPerimeter = max;
+                toExchange(this.best);
+            }
+
+            temperature = 0.98 * temperature;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -152,25 +194,24 @@ public class Graph {
 
         /* FIRST OPTION */
         // A B C D => A C B D
-        LinkedList<Point> candidate = new LinkedList<>();
+        candidate1 = new LinkedList<>();
         int i;
         for (i = 0; i <= a; ++i) {
-            candidate.addLast(list.get(i));
+            candidate1.addLast(list.get(i));
         }
         for (i = c; i >= b; --i) {
-            candidate.addLast(list.get(i));
+            candidate1.addLast(list.get(i));
         }
         for (i = d; i < list.size(); ++i) {
-            candidate.addLast(list.get(i));
+            candidate1.addLast(list.get(i));
         }
 
         perimeterFirst = checkPerimeter(true, point_a, point_b, point_c, point_d);
 
         /* SECOND OPTION */
         // A B C D => A C B D => A C D B => A D C B
-
-        LinkedList<Point> candidate2 = new LinkedList<>();
-        for (Point p : candidate) {
+        candidate2 = new LinkedList<>();
+        for (Point p : candidate1) {
             candidate2.addLast(p);
         }
 
@@ -188,15 +229,10 @@ public class Graph {
         perimeterSecond = checkPerimeter(false, point_a, point_b, point_c, point_d);
 
         if (perimeterFirst < perimeterSecond) {
-            if (!candidates.contains(candidate)) {
-                return candidate;
-            }
+            return candidate1;
         } else {
-            if (!candidates.contains(candidate2)) {
-                return candidate2;
-            }
+            return candidate2;
         }
-        return null;
     }
 
     public void leastIntersections() {
@@ -204,24 +240,19 @@ public class Graph {
             return;
         }
 
-        int intersections = checkIntersections(candidates.get(0));
-        int index = 0, i = 1;
-        int temp;
+        int itxns = checkIntersections(candidates.get(0));
+        int index = 0;
+        int intxnTemp;
 
-        for (; i < candidates.size(); ++i) {
-            temp = checkIntersections(candidates.get(i));
-            if (temp < intersections) {
-                intersections = temp;
+        for (int i = 0; i < candidates.size(); ++i) {
+            intxnTemp = checkIntersections(candidates.get(i));
+            if (intxnTemp < itxns) {
+                itxns = intxnTemp;
                 index = i;
             }
         }
 
-        toExchange(candidates.get(index));
-        if (candidates.size() == 0) {
-            toExchange(candidates.get(index));
-            return;
-        }
-        leastIntersections();
+        best = candidates.get(index);
     }
 
     public int checkIntersections(LinkedList<Point> list) {
@@ -245,13 +276,12 @@ public class Graph {
     }
 
     public void toExchange(LinkedList<Point> list) {
-        // Tell garbage collector to free whatever memory is not being used
-        System.gc();
+        candidates.clear();
         candidates = new LinkedList<>();
         int a, c, i, j;
 
         for (i = 0; i < size; ++i) {
-            for (j = i + 2; j < size; ++j) {
+            for (j = 0; j < size; ++j) {
                 a = Math.min(i, j);
                 c = Math.max(i, j);
 
@@ -259,9 +289,6 @@ public class Graph {
                     candidates.addLast(checkCase(list, a, c));
                 }
             }
-        }
-        if (candidates.peekFirst() == null) {
-            System.out.println(listToString(list));
         }
     }
 
@@ -316,19 +343,23 @@ public class Graph {
         for (int i = 0; i <= size; ++i) {
             distance += l.get(i).distance(l.get((i + 1) % size));
         }
+
         return distance;
     }
 
     public int getLowestPerimeter() {
-        double minPerimeter = getPerimeter(candidates.get(0));
         int index = 0;
-        for (LinkedList<Point> l : candidates) {
-            double lp = getPerimeter(l);
+        int i = 0;
+        double lp;
+        for (LinkedList<Point> list : candidates) {
+            lp = getPerimeter(list);
             if (lp < minPerimeter) {
                 minPerimeter = lp;
-                index = candidates.indexOf(l);
+                index = i;
             }
+            ++i;
         }
+
         return index;
     }
 
@@ -337,9 +368,8 @@ public class Graph {
     ///////////////////////////////////////////////////////////////////////
     public String listToString(LinkedList<Point> list) {
         StringBuilder s = new StringBuilder();
-        Point p;
-        int i = 0;
-        for (; i <= size; ++i) {
+        Point p = list.get(0);
+        for (int i = 0; i <= size; ++i) {
             p = list.get(i);
             s.append("(").append((int) p.getX()).append(",").append((int) p.getY()).append(")");
         }
@@ -349,14 +379,12 @@ public class Graph {
     }
 
     public String candidatesToString() {
-        assert(candidates != null);
         StringBuilder s = new StringBuilder();
-        int i = 0;
 
-        for (; i < candidates.size(); ++i) {
-            s.append(listToString(candidates.get(i)));
+        for (LinkedList<Point> list : candidates) {
+            s.append(listToString(list));
+            s.append("\n\n");
         }
-        s.append("\n\n");
 
         return s.toString();
     }
