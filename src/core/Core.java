@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.util.Scanner;
 
-public class Nearest {
+public class Core {
 
     public static void graphRandom(Graph g, int n, int min, int max) {
         for (int i = 0; i < n; ++i) {
@@ -11,13 +11,13 @@ public class Nearest {
             Point p = new Point(x, y);
 
             // check if already in
-            if (!g.contains(p)){
+            if (!g.contains(p)) {
                 // add if not in
                 g.addPoint(p);
 
-                System.out.println("x: " + p.getX() + "\t" + "y: " + p.getY() + " " + g.nodes + "\t\n" + "indice " +i);
+                System.out.println("x: " + p.getX() + "\t" + "y: " + p.getY() + " " + g.nodes + "\t\n" + "indice " + i);
             } else {
-                System.out.println(":((((((");
+                System.out.println("ALREADY IN");
             }
         }
     }
@@ -38,16 +38,15 @@ public class Nearest {
     }
 */
 
-    public static void nearest(Graph g){
+    public static void nearest(Graph g) {
         int randA = (int) (Math.random() * (g.getSize()));
-        System.out.println("começa em "+randA);
+        System.out.println("começa em " + randA);
         Node a = g.nodes.get(randA);
-        
+
         g.find_nearest(a);
         //System.out.println("vai para " +randA);
 
     }
-
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
