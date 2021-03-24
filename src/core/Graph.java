@@ -45,17 +45,32 @@ public class Graph {
     }
 
     boolean checkIntersect(Point a, Point b, Point c, Point d) {
-        double det = (b.getX() - a.getX()) * (d.getY() - c.getY()) - (d.getX() - c.getX()) * (b.getY() - a.getY());
+        /* Primeiro é calculado o "delta test", o determinante da matriz que contem ambos os
+         * segmentos. Se este for 0 então os segmentos sao colineares e consideramos que não
+         * intersetam.
+         */
 
-        if (det == 0) return false;
+        double delta_test = (b.getX() - a.getX()) *
+                            (d.getY() - c.getY()) -
+                            (d.getX() - c.getX()) *
+                            (b.getY() - a.getY());
 
-        double lambda = ((d.getY() - c.getY()) * (d.getX() - a.getX()) + (c.getX() - d.getX()) * (d.getY() - a.getY())) / det;
-        double gamma = ((a.getY() - b.getY()) * (d.getX() - a.getX()) + (b.getX() - a.getX()) * (d.getY() - a.getY())) / det;
+        if (delta_test == 0) return false;
 
-        return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+        double clockwise1 = ((d.getY() - c.getY()) *
+                             (d.getX() - a.getX()) +
+                             (c.getX() - d.getX()) *
+                             (d.getY() - a.getY())) / delta_test;
+
+        double clockwise2 = ((a.getY() - b.getY()) *
+                             (d.getX() - a.getX()) +
+                             (b.getX() - a.getX()) *
+                             (d.getY() - a.getY())) / delta_test;
+
+        // se tiverem sinais diferentes pelo delta test
+        return (0 < clockwise1 && clockwise1 < 1) && (0 < clockwise2 && clockwise2 < 1);
     }
 
-    // reverse bs need to work here
     void checkCase(Point s1_start, Point s1_end, Point s2_start, Point s2_end) {
         LinkedList<Point> candidate = new LinkedList<>();
 
@@ -64,8 +79,6 @@ public class Graph {
 
         Point advance = new Point(nearest.get(to_advance_index));
         Point previous = new Point(nearest.get(to_previous_index));
-
-        System.out.println(to_advance_index + "  " + to_previous_index);
 
         for (int i = 0; i < nearest.size(); ++i) {
             if (i == to_previous_index) {
@@ -158,7 +171,6 @@ public class Graph {
         }
 
         if (flag == 1) {
-            System.out.println("vai para " + nextCandidate);
             find_nearest(next);
         } else {
             nearest.addLast(nearest.get(0));

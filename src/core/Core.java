@@ -5,7 +5,6 @@ import java.util.Scanner;
 public class Core {
     public static void nearest(Graph g) {
         int randA = (int) (Math.random() * (g.getSize()));
-        System.out.println("começa em " + randA);
         Node a = g.nodes.get(randA);
 
         g.find_nearest(a);
@@ -15,12 +14,19 @@ public class Core {
         Scanner in = new Scanner(System.in);
         int n, min, max;
 
-        // ask stuff
         System.out.println("Limite inferior e superior? ");
         min = in.nextInt();
         max = in.nextInt();
+        int range = 0;
 
-        int range = Math.abs(max) - Math.abs(min);
+        if (min == 0) {
+            range = Math.abs(max + 1);
+        } else if (min < 0){
+            range = Math.abs(max) + Math.abs(min);
+        } else {
+            range = Math.abs(max) - Math.abs(min);
+        }
+
         int n_max = range * range;
 
         System.out.println("Quantos pontos? Inserir no máximo " + n_max + ".");
