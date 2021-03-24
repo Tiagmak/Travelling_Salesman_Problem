@@ -13,8 +13,6 @@ class Node {
         //this.adj = new LinkedList<Node>();
         this.point = p;
     }
-
-
 }
 
 public class Graph {
@@ -25,7 +23,6 @@ public class Graph {
     public Graph() {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
-        candidates = new LinkedList<>();
     }
 
     public void graphRandom(int n, int i, int min, int max) {
@@ -65,28 +62,26 @@ public class Graph {
         int to_advance_index = nearest.indexOf(s1_end);
         int to_previous_index = nearest.indexOf(s2_start);
 
-        System.out.println("NEED TO SWITCH: " + nearest.get(to_previous_index).toString() + " WITH " + nearest.get(to_advance_index).toString());
-
-        // CENAS NAO ACONTECEM A PARTIR DAQUI
         Point advance = new Point(nearest.get(to_advance_index));
         Point previous = new Point(nearest.get(to_previous_index));
 
-        for (int i = 0; i < nearest.size(); i++) {
+        for (int i = 0; i < nearest.size(); ++i) {
             if (i == to_previous_index) {
-                candidate.addLast(previous);
-            } else if (i == to_advance_index) {
                 candidate.addLast(advance);
+            } else if (i == to_advance_index) {
+                candidate.addLast(previous);
             } else {
                 candidate.addLast(nearest.get(i));
             }
         }
-        // ATE AQUI
 
         candidates.addLast(candidate);
     }
 
     public void toExchange() {
+        candidates = new LinkedList<>();
         Point s1, s2, e1, e2;
+
         for (int i = 0; i < nearest.size() - 1; i++) {
             s1 = nearest.get(i);
             e1 = nearest.get(i + 1);
@@ -108,7 +103,7 @@ public class Graph {
         return nodes.size();
     }
 
-    public void addPoint(Point p) {   //add a node with a point
+    public void addPoint(Point p) {
         Node n = new Node(p);
         nodes.addLast(n);
     }
