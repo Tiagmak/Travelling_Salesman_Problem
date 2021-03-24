@@ -45,6 +45,7 @@ public class Core {
         g.toExchange();
         for (int i = 0; i < g.candidates.size(); ++i) {
             System.out.println(Arrays.toString(g.candidates.get(i).toArray()));
+            System.out.println("Candidate nº " + i);
         }
     }
 }

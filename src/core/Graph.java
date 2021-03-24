@@ -1,5 +1,5 @@
-import java.awt.*;
-import java.awt.geom.Point2D;
+import java.awt.Point;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 // Classe que representa um no
@@ -7,7 +7,7 @@ class Node {
     //public LinkedList<Node> adj;
     public boolean visited;
     //public int distance;
-    Point2D point;
+    Point point;
 
     Node(Point p) {
         //this.adj = new LinkedList<Node>();
@@ -19,8 +19,8 @@ class Node {
 
 public class Graph {
     public LinkedList<Node> nodes;
-    public LinkedList<Point2D> nearest;
-    public LinkedList<LinkedList<Point2D>> candidates;
+    public LinkedList<Point> nearest;
+    public LinkedList<LinkedList<Point>> candidates;
 
     public Graph() {
         nodes = new LinkedList<>();
@@ -47,86 +47,60 @@ public class Graph {
         graphRandom(n, i, min, max);
     }
 
-    /**
-     * 0 --> colinear
-     * 1 --> clockwise
-     * 2 --> counter clockwise
-     */
-    public int checkOrientation(Point2D n1_start, Point2D n1_end, Point2D wildcard) {
-        return (int) ((n1_end.getY() - n1_start.getY()) *
-                (wildcard.getX() - n1_end.getX()) *
-                (wildcard.getY() - n1_end.getY()));
-    }
+    boolean checkIntersect(Point a, Point b, Point c, Point d) {
+        double det = (b.getX() - a.getX()) * (d.getY() - c.getY()) - (d.getX() - c.getX()) * (b.getY() - a.getY());
 
-    static boolean onSegment(Point2D p, Point2D q, Point2D r) {
-        return q.getX() <= Math.max(p.getX(), r.getX()) && q.getX() >= Math.min(p.getX(), r.getX()) &&
-                q.getY() <= Math.max(p.getY(), r.getY()) && q.getY() >= Math.min(p.getY(), r.getY());
-    }
+        if (det == 0) return false;
 
-    boolean checkIntersect(Point2D s1_start, Point2D s1_end, Point2D s2_start, Point2D s2_end) {
-        int o1 = checkOrientation(s1_start, s1_end, s2_start);
-        int o2 = checkOrientation(s1_start, s1_end, s2_end);
-        int o3 = checkOrientation(s2_start, s2_end, s1_start);
-        int o4 = checkOrientation(s2_start, s2_end, s1_end);
+        double lambda = ((d.getY() - c.getY()) * (d.getX() - a.getX()) + (c.getX() - d.getX()) * (d.getY() - a.getY())) / det;
+        double gamma = ((a.getY() - b.getY()) * (d.getX() - a.getX()) + (b.getX() - a.getX()) * (d.getY() - a.getY())) / det;
 
-        if (o1 != o2 && o3 != o4)
-            return true;
-
-        if (o1 == 0 && onSegment(s1_start, s2_start, s1_end)) return true;
-
-        // p1, q1 and q2 are colinear and q2 lies on segment p1q1
-        if (o2 == 0 && onSegment(s1_start, s2_end, s1_end)) return true;
-
-        // p2, q2 and p1 are colinear and p1 lies on segment p2q2
-        if (o3 == 0 && onSegment(s2_start, s1_start, s2_end)) return true;
-
-        // p2, q2 and q1 are colinear and q1 lies on segment p2q2
-        return o4 == 0 && onSegment(s2_start, s1_end, s2_end);
+        return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
     }
 
     // reverse bs need to work here
-    LinkedList<Point2D> checkCase(Point2D s1_start, Point2D s1_end, Point2D s2_start, Point2D s2_end) {
-        LinkedList<Point2D> candidate = new LinkedList<>();
-        candidate = (LinkedList<Point2D>) nearest.clone();
+    void checkCase(Point s1_start, Point s1_end, Point s2_start, Point s2_end) {
+        LinkedList<Point> candidate = new LinkedList<>();
 
-        // if s1 -> e2 and s2 -> e1 already exist do second case
-        if ((nearest.indexOf(s1_start) == (nearest.indexOf(s2_start) - 1)) && nearest.indexOf(s1_end) == (nearest.indexOf(s2_end) - 1)) {
-            // switch indexes
-            int to_advance_index = candidate.indexOf(s1_end);
-            int to_previous_index = candidate.indexOf(s2_start);
-            Point2D advance = candidate.get(to_advance_index);
-            Point2D previous = candidate.get(to_previous_index);
-            candidate.remove(to_advance_index);
-            candidate.remove(to_previous_index);
-            candidate.add(to_advance_index, advance);
-            candidate.add(to_previous_index, previous);
-        }
+        int to_advance_index = nearest.indexOf(s1_end);
+        int to_previous_index = nearest.indexOf(s2_start);
 
-        return candidate;
-    }
+        System.out.println("NEED TO SWITCH: " + nearest.get(to_previous_index).toString() + " WITH " + nearest.get(to_advance_index).toString());
 
-    int genCandidate(int i) {
-        Point2D s1, s2, e1, e2;
-        s1 = nearest.get(i);
+        // CENAS NAO ACONTECEM A PARTIR DAQUI
+        Point advance = new Point(nearest.get(to_advance_index));
+        Point previous = new Point(nearest.get(to_previous_index));
 
-        for (int j = i; j < nearest.size() - 3; ++j) {
-            e1 = nearest.get(j + 1);
-            s2 = nearest.get(j + 2);
-            e2 = nearest.get(j + 3);
-
-            if (checkIntersect(s1, e1, s2, e2)) {
-                candidates.addLast(checkCase(s1, e1, s2, e2));
+        for (int i = 0; i < nearest.size(); i++) {
+            if (i == to_previous_index) {
+                candidate.addLast(previous);
+            } else if (i == to_advance_index) {
+                candidate.addLast(advance);
+            } else {
+                candidate.addLast(nearest.get(i));
             }
         }
+        // ATE AQUI
 
-        return ++i;
+        candidates.addLast(candidate);
     }
 
     public void toExchange() {
-        int i = 0;
+        Point s1, s2, e1, e2;
+        for (int i = 0; i < nearest.size() - 1; i++) {
+            s1 = nearest.get(i);
+            e1 = nearest.get(i + 1);
 
-        while (i < nearest.size()) {
-            i = genCandidate(i);
+            for (int j = 0; j < nearest.size() - 1; j++) {
+                s2 = nearest.get(j);
+                e2 = nearest.get(j + 1);
+
+                if (s1.equals(s2) && e1.equals(e2)) continue;
+
+                if (checkIntersect(s1, e1, s2, e2)) {
+                    checkCase(s1, e1, s2, e2);
+                }
+            }
         }
     }
 
