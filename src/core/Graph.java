@@ -65,11 +65,15 @@ public class Graph {
         Point advance = new Point(nearest.get(to_advance_index));
         Point previous = new Point(nearest.get(to_previous_index));
 
+        System.out.println(to_advance_index + "  " + to_previous_index);
+
         for (int i = 0; i < nearest.size(); ++i) {
             if (i == to_previous_index) {
                 candidate.addLast(advance);
             } else if (i == to_advance_index) {
                 candidate.addLast(previous);
+            } else if (i > to_advance_index && i < to_previous_index) {
+                candidate.addLast(nearest.get(nearest.size() - i));
             } else {
                 candidate.addLast(nearest.get(i));
             }
@@ -86,7 +90,7 @@ public class Graph {
             s1 = nearest.get(i);
             e1 = nearest.get(i + 1);
 
-            for (int j = 0; j < nearest.size() - 1; j++) {
+            for (int j = i + 1; j < nearest.size() - 1; j++) {
                 s2 = nearest.get(j);
                 e2 = nearest.get(j + 1);
 
