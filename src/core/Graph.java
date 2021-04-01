@@ -146,39 +146,45 @@ public class Graph {
         return (0 < clockwise1 && clockwise1 < 1) && (0 < clockwise2 && clockwise2 < 1);
     }
 
-    void checkCase(Point s1_start, Point s1_end, Point s2_start, Point s2_end) {
+    void checkCase(Point a, Point b, Point c, Point d) {
         LinkedList<Point> candidate = new LinkedList<>();
+        for (Point p : nearest) {
+            candidate.addLast(p);
+        }
 
-        int to_advance_index = nearest.indexOf(s2_start);
-        int to_previous_index = nearest.indexOf(s1_end);
+        Point b_copy = (Point) nearest.get(nearest.indexOf(b)).clone();
 
-        Point advance = new Point(nearest.get(to_advance_index));
-        Point previous = new Point(nearest.get(to_previous_index));
-
+        boolean flip = false;
         for (int i = 0; i < nearest.size(); ++i) {
-            if (i == to_previous_index) {
-                candidate.addLast(advance);
-            } else if (i == to_advance_index) {
-                candidate.addLast(previous);
-            } else if (i < to_advance_index) {
-                candidate.addLast(nearest.get(nearest.size() - 1 - i));
-            } else {
-                candidate.addLast(nearest.get(i));
+            Point cur = (Point) nearest.get(i).clone();
+
+            if (flip) {
+                if (cur.equals(c)) {
+                    candidate.set(i, b_copy);
+                    flip = false;
+                } else {
+                    candidate.set(nearest.size() - (i + 1), cur);
+                    candidate.set(i, nearest.get(nearest.size() - (i + 1)));
+                }
+            } else if (cur.equals(b) && i != nearest.size() - 1) {
+                flip = true;
+                b_copy = (Point) nearest.get(i).clone();
+                candidate.set(i, c);
             }
         }
 
         candidates.addLast(candidate);
     }
 
-    void checkPerimeter(Point s1_start, Point s1_end, Point s2_start, Point s2_end) {
+    void checkPerimeter(Point a, Point b, Point c, Point d) {
         int index = candidates.size();
 
         // get out
-        double distanceA1 = s1_start.distance(s1_end);
-        double distanceA2 = s2_start.distance(s2_end);
+        double distanceA1 = a.distance(b);
+        double distanceA2 = c.distance(d);
         // get in
-        double distanceA3 = s1_end.distance(s2_start);
-        double distanceA4 = s1_start.distance(s2_end);
+        double distanceA3 = b.distance(c);
+        double distanceA4 = a.distance(d);
 
         int deltaPerimeter = (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
 
@@ -196,7 +202,7 @@ public class Graph {
             ++i;
             e1 = nearest.get(i);
 
-            for (int j = i + 1; j < nearest.size() - 1; j++) {
+            for (int j = 0; j < nearest.size() - 1; j++) {
                 s2 = nearest.get(j);
                 ++j;
                 e2 = nearest.get(j);
