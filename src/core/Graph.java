@@ -183,8 +183,8 @@ public class Graph {
         double distanceA1 = a.distance(b);
         double distanceA2 = c.distance(d);
         // get in
-        double distanceA3 = b.distance(c);
-        double distanceA4 = a.distance(d);
+        double distanceA3 = a.distance(c);
+        double distanceA4 = b.distance(d);
 
         int deltaPerimeter = (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
 

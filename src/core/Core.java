@@ -51,11 +51,9 @@ public class Core {
         g.printCandidates();
 
         System.out.println();
-        /*
-        if (g.lowestPerimeterIndex < Math.pow(10, 9))
-            System.out.println(g.candidates.get(g.lowestPerimeterIndex).toString());
 
-         */
+        if (g.candidates.size() != 0)
+            System.out.println(g.candidates.get(g.lowestPerimeterIndex).toString());
     }
 }
 
