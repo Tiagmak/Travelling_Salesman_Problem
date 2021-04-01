@@ -1,8 +1,12 @@
 import java.awt.*;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class Core {
+
+
     public static void nearest(Graph g) {
         int randA = (int) (Math.random() * (g.getSize()));
         Node a = g.nodes.get(randA);
@@ -10,7 +14,7 @@ public class Core {
         g.find_nearest(a);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner in = new Scanner(System.in);
         int n, min, max;
 
@@ -21,7 +25,7 @@ public class Core {
 
         if (min == 0) {
             range = Math.abs(max + 1);
-        } else if (min < 0){
+        } else if (min < 0) {
             range = Math.abs(max) + Math.abs(min);
         } else {
             range = Math.abs(max) - Math.abs(min);
@@ -37,22 +41,21 @@ public class Core {
             n = in.nextInt();
         }
 
-        Graph g = new Graph();
+        Graph g = new Graph(n);
         g.graphRandom(n, 0, min, max);
+
         nearest(g);
-
-        for (int i = 0; i < g.nearest.size(); ++i) {
-            System.out.println(g.nearest.get(i).toString());
-        }
-
-
-        System.out.println();
+        g.printNearest();
 
         g.toExchange();
-        for (int i = 0; i < g.candidates.size(); ++i) {
-            System.out.println(Arrays.toString(g.candidates.get(i).toArray()));
-            System.out.println("Candidate nº " + i);
-        }
+        g.printCandidates();
+
+        System.out.println();
+        /*
+        if (g.lowestPerimeterIndex < Math.pow(10, 9))
+            System.out.println(g.candidates.get(g.lowestPerimeterIndex).toString());
+
+         */
     }
 }
 
