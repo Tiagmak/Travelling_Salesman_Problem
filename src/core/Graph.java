@@ -1,5 +1,4 @@
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 // Classe que representa um no
@@ -27,11 +26,66 @@ public class Graph {
         lowestPerimeterIndex = n;
     }
 
-    // Given three colinear points p, q, r, the function checks if
-    // point q lies on line segment 'pr'
-    static boolean onSegment(Point p, Point q, Point r) {
-        return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) &&
-                q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
+    public void addPoint(Point p) {
+        Node n = new Node(p);
+        nodes.addLast(n);
+    }
+
+    /**
+     * @param n   - number of points
+     * @param i   - index
+     * @param min - minimum range
+     * @param max - max range
+     */
+    public void graphRandom(int n, int i, int min, int max) {
+        if (i == n) return;
+
+        int x = (int) (Math.random() * (max - min + 1) + min);
+        int y = (int) (Math.random() * (max - min + 1) + min);
+
+        Point p = new Point(x, y);
+
+        // check if already in
+        if (!contains(p)) {
+            addPoint(p);
+            ++i;
+        }
+        graphRandom(n, i, min, max);
+    }
+
+    public void toExchange() {
+        candidates = new LinkedList<>();
+        Point s1, s2, e1, e2;
+
+        for (int i = 0; i < nearest.size() - 3; i++) {
+            s1 = nearest.get(i);
+            ++i;
+            e1 = nearest.get(i);
+
+            for (int j = 0; j < nearest.size() - 1; j++) {
+                s2 = nearest.get(j);
+                ++j;
+                e2 = nearest.get(j);
+
+                if (s1.equals(s2) && e1.equals(e2)) continue;
+
+                if (doIntersect(s1, e1, s2, e2)) {
+                    checkCase(s1, e1, s2, e2);
+                    checkPerimeter(s1, e1, s2, e2);
+                }
+            }
+        }
+    }
+
+    public void nearest() {
+        int randA = (int) (Math.random() * (getSize()));
+        Node a = nodes.get(randA);
+
+        findNearest(a);
+    }
+
+    private int getSize() {
+        return nodes.size();
     }
 
     // To find orientation of ordered triplet (p, q, r).
@@ -39,7 +93,7 @@ public class Graph {
     // 0 --> p, q and r are colinear
     // 1 --> Clockwise
     // 2 --> Counterclockwise
-    static int orientation(Point p, Point q, Point r) {
+    private int orientation(Point p, Point q, Point r) {
         // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
         // for details of below formula.
         int val = (q.y - p.y) * (r.x - q.x) -
@@ -50,9 +104,16 @@ public class Graph {
         return (val > 0) ? 1 : 2; // clock or counterclock wise
     }
 
+    // Given three colinear points p, q, r, the function checks if
+    // point q lies on line segment 'pr'
+    private boolean onSegment(Point p, Point q, Point r) {
+        return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) &&
+                q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
+    }
+
     // The main function that returns true if line segment 'p1q1'
     // and 'p2q2' intersect.
-    static boolean doIntersect(Point p1, Point q1, Point p2, Point q2) {
+    private boolean doIntersect(Point p1, Point q1, Point p2, Point q2) {
         // Find the four orientations needed for general and
         // special cases
         int o1 = orientation(p1, q1, p2);
@@ -78,75 +139,7 @@ public class Graph {
         return o4 == 0 && onSegment(p2, q1, q2);// Doesn't fall in any of the above cases
     }
 
-    public void printNearest() {
-        for (Point p : nearest) {
-            System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
-        }
-        System.out.println();
-    }
-
-    public void printCandidates() {
-        for (LinkedList<Point> L : candidates) {
-            for (Point p : L) {
-                System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
-            }
-            System.out.println();
-        }
-    }
-
-    /**
-     * @param n   - number of points
-     * @param i   - index
-     * @param min - minimum range
-     * @param max - max range
-     */
-    public void graphRandom(int n, int i, int min, int max) {
-        if (i == n) return;
-
-        int x = (int) (Math.random() * (max - min + 1) + min);
-        int y = (int) (Math.random() * (max - min + 1) + min);
-
-        Point p = new Point(x, y);
-
-        // check if already in
-        if (!contains(p)) {
-            //System.out.println("[index: " + i + "] " + "x: " + p.getX() + "\t" + "y: " + p.getY());
-            addPoint(p);
-            ++i;
-        } else {
-            //System.out.println("ALREADY IN");
-        }
-        graphRandom(n, i, min, max);
-    }
-
-    boolean checkIntersect(Point a, Point b, Point c, Point d) {
-        /* Primeiro é calculado o "delta test", o determinante da matriz que contem ambos os
-         * segmentos. Se este for 0 então os segmentos sao colineares e consideramos que não
-         * intersetam.
-         */
-
-        double delta_test = (b.getX() - a.getX()) *
-                (d.getY() - c.getY()) -
-                (d.getX() - c.getX()) *
-                        (b.getY() - a.getY());
-
-        if (delta_test == 0) return false;
-
-        double clockwise1 = ((d.getY() - c.getY()) *
-                (d.getX() - a.getX()) +
-                (c.getX() - d.getX()) *
-                        (d.getY() - a.getY())) / delta_test;
-
-        double clockwise2 = ((a.getY() - b.getY()) *
-                (d.getX() - a.getX()) +
-                (b.getX() - a.getX()) *
-                        (d.getY() - a.getY())) / delta_test;
-
-        // se tiverem sinais diferentes pelo delta test
-        return (0 < clockwise1 && clockwise1 < 1) && (0 < clockwise2 && clockwise2 < 1);
-    }
-
-    void checkCase(Point a, Point b, Point c, Point d) {
+    private void checkCase(Point a, Point b, Point c, Point d) {
         LinkedList<Point> candidate = new LinkedList<>();
         for (Point p : nearest) {
             candidate.addLast(p);
@@ -176,7 +169,7 @@ public class Graph {
         candidates.addLast(candidate);
     }
 
-    void checkPerimeter(Point a, Point b, Point c, Point d) {
+    private void checkPerimeter(Point a, Point b, Point c, Point d) {
         int index = candidates.size();
 
         // get out
@@ -193,46 +186,13 @@ public class Graph {
         }
     }
 
-    public void toExchange() {
-        candidates = new LinkedList<>();
-        Point s1, s2, e1, e2;
-
-        for (int i = 0; i < nearest.size() - 3; i++) {
-            s1 = nearest.get(i);
-            ++i;
-            e1 = nearest.get(i);
-
-            for (int j = 0; j < nearest.size() - 1; j++) {
-                s2 = nearest.get(j);
-                ++j;
-                e2 = nearest.get(j);
-
-                if (s1.equals(s2) && e1.equals(e2)) continue;
-
-                if (doIntersect(s1, e1, s2, e2)) {
-                    checkCase(s1, e1, s2, e2);
-                    checkPerimeter(s1, e1, s2, e2);
-                }
-            }
-        }
-    }
-
-    public int getSize() {
-        return nodes.size();
-    }
-
-    public void addPoint(Point p) {
-        Node n = new Node(p);
-        nodes.addLast(n);
-    }
-
-    public boolean contains(Point thisp) {
+    public boolean contains(Point givenPoint) {
         int i = 0;
 
         if (nodes.size() == 0) return false;
 
         while (i < nodes.size()) {
-            if (nodes.get(i).point.equals(thisp)) {
+            if (nodes.get(i).point.equals(givenPoint)) {
                 return true;
             }
             ++i;
@@ -240,7 +200,7 @@ public class Graph {
         return false;
     }
 
-    public void find_nearest(Node a) {
+    public void findNearest(Node a) {
         nearest.addLast(a.point);
         a.visited = true;
         Node next = null;
@@ -272,9 +232,39 @@ public class Graph {
         }
 
         if (flag == 1) {
-            find_nearest(next);
+            findNearest(next);
         } else {
             nearest.addLast(nearest.get(0));
+        }
+    }
+
+    public String printNearest() {
+        StringBuilder s = new StringBuilder();
+        for (Point p : nearest) {
+            s.append("(").append((int) p.getX()).append(",").append((int) p.getY()).append(")");
+        }
+        s.append("\n");
+
+        return s.toString();
+    }
+
+    public void printCandidates() {
+        for (LinkedList<Point> L : candidates) {
+            for (Point p : L) {
+                System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
+            }
+            System.out.println("\n");
+        }
+    }
+
+    public void printLeastPerimeter() {
+        for (LinkedList<Point> L : candidates) {
+            if (L.equals(candidates.get(lowestPerimeterIndex))) {
+                for (Point p : L) {
+                    System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
+                }
+                System.out.println("\n");
+            }
         }
     }
 }

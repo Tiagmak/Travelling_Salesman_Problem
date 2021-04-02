@@ -1,26 +1,12 @@
-import java.awt.*;
+import javax.script.*;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Scanner;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class Core {
 
-
-    public static void nearest(Graph g) {
-        int randA = (int) (Math.random() * (g.getSize()));
-        Node a = g.nodes.get(randA);
-
-        g.find_nearest(a);
-    }
-
-    public static void main(String[] args) throws IOException {
-        Scanner in = new Scanner(System.in);
-        int n, min, max;
-
-        System.out.println("Limite inferior e superior? ");
-        min = in.nextInt();
-        max = in.nextInt();
+    public static int getRange(int min, int max) {
         int range = 0;
 
         if (min == 0) {
@@ -31,7 +17,18 @@ public class Core {
             range = Math.abs(max) - Math.abs(min);
         }
 
-        int n_max = range * range;
+        return range * range;
+    }
+
+    public static void main(String[] args) throws IOException, ScriptException {
+        Scanner in = new Scanner(System.in);
+        int n, min, max;
+
+        System.out.println("Limite inferior e superior? ");
+        min = in.nextInt();
+        max = in.nextInt();
+
+        int n_max = getRange(min, max);
 
         System.out.println("Quantos pontos? Inserir no máximo " + n_max + ".");
         n = in.nextInt();
@@ -44,16 +41,31 @@ public class Core {
         Graph g = new Graph(n);
         g.graphRandom(n, 0, min, max);
 
-        nearest(g);
-        g.printNearest();
-
+        g.nearest();
         g.toExchange();
+
+        String argument;
+        System.out.println("[ NEAREST: ]");
+        argument = g.printNearest();
+        System.out.println(argument);
+
+        System.out.println("[ CANDIDATES: ]");
         g.printCandidates();
 
-        System.out.println();
+        System.out.println("[ LOWEST PERIMETER: ]");
+        g.printLeastPerimeter();
 
-        if (g.candidates.size() != 0)
-            System.out.println(g.candidates.get(g.lowestPerimeterIndex).toString());
+        /*
+        //Process p = Runtime.getRuntime().exec(new String[] {"bash", "-c", "./test.py", "lol"});
+        Process pb = Runtime.getRuntime().exec("bash " + "-c " + "python3 ./file.py " + argument);
+        //ProcessBuilder pb = new ProcessBuilder("bash", "-c", arguments[0], arguments[1]);
+        //Process p = pb.start();
+        BufferedReader input_py = new BufferedReader(new InputStreamReader(pb.getInputStream()));
+        while ((s = input_py.readLine()) != null) {
+            System.out.println(s);
+        }
+
+         */
     }
 }
 
