@@ -40,32 +40,56 @@ public class Core {
 
         Graph g = new Graph(n);
         g.graphRandom(n, 0, min, max);
-
         g.nearest();
-        g.toExchange();
 
         String argument;
         System.out.println("[ NEAREST: ]");
         argument = g.printNearest();
         System.out.println(argument);
 
-        System.out.println("[ CANDIDATES: ]");
-        g.printCandidates();
+        g.toExchange(g.nearest, 0);
+
+        System.out.println("Heurística?");
+        System.out.println("1) Menor perímetro\n" +
+                            "2) Primeiro Candidato\n" +
+                            "3) Menos conflitos\n" +
+                            "4) Candidato aleatório");
+
+        int h = in.nextInt();
+        switch (h) {
+            case 1:
+                g.toExchange(g.nearest, 1);
+                if (g.candidates.size() > 0) {
+                    System.out.println("[ CANDIDATES: ]");
+                    g.printCandidates();
+                }
+
+                break;
+
+            case 2:
+                break;
+
+            case 3:
+                break;
+
+            case 4:
+                break;
+        }
+
+        int o = in.nextInt();
+        System.out.println("Optimização?");
+        System.out.println("1) Simulated Annealing");
+
+        switch (o) {
+            case 1:
+                g.toExchange(g.bestUntilNowPerimeter, 1);
+                System.out.println("[ CANDIDATES: ]");
+                g.printCandidates();
+                break;
+        }
 
         System.out.println("[ LOWEST PERIMETER: ]");
         g.printLeastPerimeter();
-
-        /*
-        //Process p = Runtime.getRuntime().exec(new String[] {"bash", "-c", "./test.py", "lol"});
-        Process pb = Runtime.getRuntime().exec("bash " + "-c " + "python3 ./file.py " + argument);
-        //ProcessBuilder pb = new ProcessBuilder("bash", "-c", arguments[0], arguments[1]);
-        //Process p = pb.start();
-        BufferedReader input_py = new BufferedReader(new InputStreamReader(pb.getInputStream()));
-        while ((s = input_py.readLine()) != null) {
-            System.out.println(s);
-        }
-
-         */
     }
 }
 

@@ -18,11 +18,13 @@ public class Graph {
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
+    public LinkedList<Point> bestUntilNowPerimeter;
     int lowestPerimeterIndex, lowestPerimeter = (int) Math.pow(10, 9);
 
     public Graph(int n) {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
+        candidates = new LinkedList<>();
         lowestPerimeterIndex = n;
     }
 
@@ -53,25 +55,32 @@ public class Graph {
         graphRandom(n, i, min, max);
     }
 
-    public void toExchange() {
-        candidates = new LinkedList<>();
+    public void toExchange(LinkedList<Point> list, int option) {
         Point s1, s2, e1, e2;
 
-        for (int i = 0; i < nearest.size() - 3; i++) {
-            s1 = nearest.get(i);
-            ++i;
-            e1 = nearest.get(i);
+        for (int i = 0; i < list.size() - 3; i++) {
+            s1 = list.get(i);
+            int k = i + 1;
+            e1 = list.get(k);
 
-            for (int j = 0; j < nearest.size() - 1; j++) {
-                s2 = nearest.get(j);
-                ++j;
-                e2 = nearest.get(j);
+            for (int j = k + 1; j < list.size() - 1; j++) {
+                s2 = list.get(j);
+                int l = j + 1;
+                e2 = list.get(l);
 
-                if (s1.equals(s2) && e1.equals(e2)) continue;
+                //if (s1.equals(s2) && e1.equals(e2)) continue;
 
                 if (doIntersect(s1, e1, s2, e2)) {
-                    checkCase(s1, e1, s2, e2);
-                    checkPerimeter(s1, e1, s2, e2);
+                     checkCase(list, s1, e1, s2, e2);
+                     switch (option) {
+                         case 0:
+                             break;
+                         case 1:
+                             checkPerimeter(s1, e1, s2, e2);
+                             break;
+                         default:
+                             break;
+                     }
                 }
             }
         }
@@ -139,29 +148,30 @@ public class Graph {
         return o4 == 0 && onSegment(p2, q1, q2);// Doesn't fall in any of the above cases
     }
 
-    private void checkCase(Point a, Point b, Point c, Point d) {
+    private void checkCase(LinkedList<Point> list, Point a, Point b, Point c, Point d) {
         LinkedList<Point> candidate = new LinkedList<>();
-        for (Point p : nearest) {
+        for (Point p : list) {
             candidate.addLast(p);
         }
 
-        Point b_copy = (Point) nearest.get(nearest.indexOf(b)).clone();
+        Point b_copy = (Point) list.get(list.indexOf(b)).clone();
 
         boolean flip = false;
-        for (int i = 0; i < nearest.size(); ++i) {
-            Point cur = (Point) nearest.get(i).clone();
+        for (int i = 0; i < list.size(); ++i) {
+            Point cur = (Point) list.get(i).clone();
 
             if (flip) {
                 if (cur.equals(c)) {
                     candidate.set(i, b_copy);
                     flip = false;
                 } else {
-                    candidate.set(nearest.size() - (i + 1), cur);
-                    candidate.set(i, nearest.get(nearest.size() - (i + 1)));
+                    Point tmp = (Point) list.get(list.size() - (i + 2)).clone();
+                    candidate.set(list.size() - (i + 2), cur);
+                    candidate.set(i, tmp);
                 }
-            } else if (cur.equals(b) && i != nearest.size() - 1) {
+            } else if (cur.equals(b)) {
                 flip = true;
-                b_copy = (Point) nearest.get(i).clone();
+                b_copy = (Point) list.get(i).clone();
                 candidate.set(i, c);
             }
         }
@@ -183,6 +193,11 @@ public class Graph {
 
         if (deltaPerimeter < lowestPerimeter) {
             lowestPerimeterIndex = index - 1;
+            LinkedList<Point> candidate = new LinkedList<>();
+            for (Point p : candidates.get(lowestPerimeterIndex)) {
+                candidate.addLast(p);
+            }
+            bestUntilNowPerimeter = candidate;
         }
     }
 
@@ -243,7 +258,6 @@ public class Graph {
         for (Point p : nearest) {
             s.append("(").append((int) p.getX()).append(",").append((int) p.getY()).append(")");
         }
-        s.append("\n");
 
         return s.toString();
     }
