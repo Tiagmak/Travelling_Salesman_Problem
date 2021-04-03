@@ -33,46 +33,90 @@ public class Core {
         System.out.println("Quantos pontos? Inserir no máximo " + n_max + ".");
         n = in.nextInt();
 
+        /**
+         * NUMBER OF POINTS IS TOO BIG
+         */
         if (n > n_max) {
             System.out.println("Try again...");
             n = in.nextInt();
         }
 
+        /**
+         * CREATE GRAPH AND APPLY NEAREST
+         */
         Graph g = new Graph(n);
         g.graphRandom(n, 0, min, max);
         g.nearest();
 
-        String argument;
-        System.out.println("[ NEAREST: ]");
-        argument = g.printNearest();
-        System.out.println(argument);
+        /**
+         * CREATE A LIST OF CANDIDATES
+         */
+        g.toExchange(g.nearest, -1);
 
-        g.toExchange(g.nearest, 0);
+        /**
+         * ENSURE THERE ARE INTERSECTIONS
+         */
+        while (g.candidates.peekFirst() == null) {
+            g = new Graph(n);
+            g.graphRandom(n, 0, min, max);
+            g.nearest();
+            g.toExchange(g.nearest, 0);
+        }
 
+        /**
+         * PRINT NEAREST AND CANDIDATES
+         */
+        System.out.println(g.printNearest() + "\n");
+        System.out.println("[ CANDIDATES: ]");
+        g.printCandidates();
+
+        /**
+         * NEXT MENU
+         */
         System.out.println("Heurística?");
         System.out.println("1) Menor perímetro\n" +
                             "2) Primeiro Candidato\n" +
                             "3) Menos conflitos\n" +
                             "4) Candidato aleatório");
 
+        /**
+         * APPLY ONE OF THE FOLLOWING HEURISTICS
+         */
         int h = in.nextInt();
         switch (h) {
             case 1:
                 g.toExchange(g.nearest, 1);
-                if (g.candidates != null) {
-                    System.out.println("[ CANDIDATES: ]");
+                if (g.candidates.peekFirst() != null)
+                    g.toExchange(g.candidates.get(g.lowestPerimeterIndex), 0);
+
+                if (g.candidates.peekFirst() != null) {
+                    System.out.println("[ LOWEST PERIMETER: ]");
                     g.printCandidates();
                 }
-
                 break;
 
             case 2:
+                if (g.candidates.peekFirst() != null)
+                    g.toExchange(g.candidates.getFirst(), 0);
+
+                if (g.candidates.peekFirst() != null) {
+                    System.out.println("[ FIRST CANDIDATE: ]");
+                    g.printCandidates();
+                }
                 break;
 
             case 3:
                 break;
 
             case 4:
+                int rand = (int)(Math.random() * ((g.candidates.size())));
+                if (g.candidates.peekFirst() != null)
+                    g.toExchange(g.candidates.get(rand), 0);
+
+                if (g.candidates.peekFirst() != null) {
+                    System.out.println("[ RANDOM CANDIDATE: ]");
+                    g.printCandidates();
+                }
                 break;
         }
         /*
@@ -88,8 +132,6 @@ public class Core {
                 break;
         }
         */
-        System.out.println("[ LOWEST PERIMETER: ]");
-        g.printLeastPerimeter();
     }
 }
 

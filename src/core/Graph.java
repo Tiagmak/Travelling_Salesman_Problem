@@ -1,4 +1,5 @@
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 // Classe que representa um no
@@ -18,13 +19,15 @@ public class Graph {
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
+    public int[] numberIntersections;
     public LinkedList<Point> bestUntilNowPerimeter;
     int lowestPerimeterIndex, lowestPerimeter = (int) Math.pow(10, 9);
 
     public Graph(int n) {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
-        candidates = new LinkedList<>();
+        numberIntersections = new int[n];
+        Arrays.fill(numberIntersections, 0);
         lowestPerimeterIndex = n - 1;
     }
 
@@ -56,27 +59,31 @@ public class Graph {
     }
 
     public void toExchange(LinkedList<Point> list, int option) {
+        candidates = new LinkedList<>();
         Point s1, s2, e1, e2;
 
-        for (int i = 0; i < list.size() - 2; i++) {
+        for (int i = 0; i < list.size() - 1; i++) {
             s1 = list.get(i);
             int k = i + 1;
             e1 = list.get(k);
 
-            for (int j = k + 1; j < list.size() - 1; j++) {
+            for (int j = i + 2; j < list.size() - 1; j++) {
                 s2 = list.get(j);
                 int l = j + 1;
                 e2 = list.get(l);
 
-                //if (s1.equals(e1) && s2.equals(e2)) continue;
-
                 if (doIntersect(s1, e1, s2, e2)) {
                      checkCase(list, s1, e1, s2, e2);
                      switch (option) {
+                         case -1:
+                             break;
                          case 0:
+                             int index = candidates.indexOf(list);
+                             ++numberIntersections[index];
                              break;
                          case 1:
-                             checkPerimeter(s1, e1, s2, e2);
+                             if (candidates.peekFirst() != null)
+                                checkPerimeter(s1, e1, s2, e2);
                              break;
                          default:
                              break;
@@ -84,6 +91,8 @@ public class Graph {
                 }
             }
         }
+
+        System.out.println(Arrays.toString(numberIntersections));
     }
 
     public void nearest() {
