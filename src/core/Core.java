@@ -51,7 +51,8 @@ public class Core {
         /**
          * CREATE A LIST OF CANDIDATES
          */
-        g.toExchange(g.nearest, -1);
+        g.toExchange(g.nearest, 0);
+        System.out.println("HERE: " + g.candidates.size());
 
         /**
          * ENSURE THERE ARE INTERSECTIONS

@@ -60,32 +60,23 @@ public class Graph {
 
     public void toExchange(LinkedList<Point> list, int option) {
         candidates = new LinkedList<>();
-        Point s1, s2, e1, e2;
+        Point a, b, c, d;
 
-        for (int i = 0; i < list.size() - 1; i++) {
-            s1 = list.get(i);
-            int k = i + 1;
-            e1 = list.get(k);
+        for (int i = 0; i < list.size() - 1;) {
+            a = list.get(i);
+            b = list.get(++i);
+            for (int j = i; j < list.size() - 1;) {
+                c = list.get(j);
+                d = list.get(++j);
 
-            for (int j = i + 2; j < list.size() - 1; j++) {
-                s2 = list.get(j);
-                int l = j + 1;
-                e2 = list.get(l);
-
-                if (doIntersect(s1, e1, s2, e2)) {
-                     checkCase(list, s1, e1, s2, e2);
-                     switch (option) {
-                         case -1:
-                             break;
-                         case 0:
-                             break;
-                         case 1:
-                             if (candidates.peekFirst() != null)
-                                checkPerimeter(s1, e1, s2, e2);
-                             break;
-                         default:
-                             break;
-                     }
+                if (!(a.equals(c) || b.equals(d) || a.equals(d) || b.equals(c))) {
+                    if (doIntersect(a, b, c, d)) {
+                        checkCase(list, a, b, c, d);
+                        if (option == 1) {
+                            if (candidates.peekFirst() != null)
+                                checkPerimeter(a, b, c, d);
+                        }
+                    }
                 }
             }
         }
@@ -163,6 +154,18 @@ public class Graph {
     }
 
     private void checkCase(LinkedList<Point> list, Point a, Point b, Point c, Point d) {
+        if (list.indexOf(c) < list.indexOf(a)) {
+            Point tmp = a;
+            a = c;
+            c = tmp;
+            tmp = b;
+            b = d;
+            d = b;
+        }
+        System.out.println("\nA " + a + "\nB " + b + "\nC " + c + "\nD " + d);
+
+        /* FIRST OPTION */
+        // A B C D => A C B D
         LinkedList<Point> candidate = new LinkedList<>();
         for (int i = 0; i < list.indexOf(b); ++i) {
             candidate.addLast(list.get(i));
@@ -176,10 +179,38 @@ public class Graph {
             candidate.addLast(list.get(i));
         }
 
-        if (candidates.contains(candidate) || checkReverse(list, candidate))
-            return;
+        // candidates.contains(candidate) ||
+        if (!(checkReverse(list, candidate)))
+            candidates.addLast(candidate);
 
-        candidates.addLast(candidate);
+
+        /* SECOND OPTION */
+        // A B C D => A D C B
+        LinkedList<Point> candidate2 = new LinkedList<>();
+
+        for (int i = 1; i < list.indexOf(b); ++i) {
+            candidate2.addLast(list.get(i));
+        }
+        candidate2.addLast(d);
+        for (int i = list.indexOf(c) - 1; i > list.indexOf(b); --i) {
+            candidate2.addLast(list.get(i));
+        }
+        candidate2.addLast(c);
+        candidate2.addLast(b);
+        for (int i = candidate2.indexOf(b) + 1; i < list.size(); ++i) {
+            if (list.get(i).equals(c) || list.get(i).equals(d)) continue;
+            candidate2.addLast(list.get(i));
+        }
+
+        // If the final segment is to be changed
+        if (list.getLast().equals(d)) {
+            candidate2.addFirst(b);
+        } else {
+            candidate2.addFirst(list.getFirst());
+        }
+
+        if (!(candidates.contains(candidate) || checkReverse(list, candidate2)))
+            candidates.addLast(candidate2);
     }
 
     private void checkPerimeter(Point a, Point b, Point c, Point d) {
