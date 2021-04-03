@@ -59,7 +59,7 @@ public class Core {
         switch (h) {
             case 1:
                 g.toExchange(g.nearest, 1);
-                if (g.candidates.size() > 0) {
+                if (g.candidates != null) {
                     System.out.println("[ CANDIDATES: ]");
                     g.printCandidates();
                 }
@@ -75,7 +75,7 @@ public class Core {
             case 4:
                 break;
         }
-
+        /*
         int o = in.nextInt();
         System.out.println("Optimização?");
         System.out.println("1) Simulated Annealing");
@@ -87,7 +87,7 @@ public class Core {
                 g.printCandidates();
                 break;
         }
-
+        */
         System.out.println("[ LOWEST PERIMETER: ]");
         g.printLeastPerimeter();
     }

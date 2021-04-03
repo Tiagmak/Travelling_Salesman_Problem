@@ -25,7 +25,7 @@ public class Graph {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
         candidates = new LinkedList<>();
-        lowestPerimeterIndex = n;
+        lowestPerimeterIndex = n - 1;
     }
 
     public void addPoint(Point p) {
@@ -58,7 +58,7 @@ public class Graph {
     public void toExchange(LinkedList<Point> list, int option) {
         Point s1, s2, e1, e2;
 
-        for (int i = 0; i < list.size() - 3; i++) {
+        for (int i = 0; i < list.size() - 2; i++) {
             s1 = list.get(i);
             int k = i + 1;
             e1 = list.get(k);
@@ -68,7 +68,7 @@ public class Graph {
                 int l = j + 1;
                 e2 = list.get(l);
 
-                //if (s1.equals(s2) && e1.equals(e2)) continue;
+                //if (s1.equals(e1) && s2.equals(e2)) continue;
 
                 if (doIntersect(s1, e1, s2, e2)) {
                      checkCase(list, s1, e1, s2, e2);
@@ -148,33 +148,31 @@ public class Graph {
         return o4 == 0 && onSegment(p2, q1, q2);// Doesn't fall in any of the above cases
     }
 
-    private void checkCase(LinkedList<Point> list, Point a, Point b, Point c, Point d) {
-        LinkedList<Point> candidate = new LinkedList<>();
-        for (Point p : list) {
-            candidate.addLast(p);
-        }
-
-        Point b_copy = (Point) list.get(list.indexOf(b)).clone();
-
-        boolean flip = false;
-        for (int i = 0; i < list.size(); ++i) {
-            Point cur = (Point) list.get(i).clone();
-
-            if (flip) {
-                if (cur.equals(c)) {
-                    candidate.set(i, b_copy);
-                    flip = false;
-                } else {
-                    Point tmp = (Point) list.get(list.size() - (i + 2)).clone();
-                    candidate.set(list.size() - (i + 2), cur);
-                    candidate.set(i, tmp);
-                }
-            } else if (cur.equals(b)) {
-                flip = true;
-                b_copy = (Point) list.get(i).clone();
-                candidate.set(i, c);
+    private boolean checkReverse(LinkedList<Point> list, LinkedList<Point> candidate) {
+        for (int i = 1; i < list.size() - 1; ++i) {
+            if (list.get(i).equals(candidate.get(candidate.size() - 1 - i))) {
+                return true;
             }
         }
+        return false;
+    }
+
+    private void checkCase(LinkedList<Point> list, Point a, Point b, Point c, Point d) {
+        LinkedList<Point> candidate = new LinkedList<>();
+        for (int i = 0; i < list.indexOf(b); ++i) {
+            candidate.addLast(list.get(i));
+        }
+        candidate.addLast(c);
+        for (int i = list.indexOf(c) - 1; i > list.indexOf(b); --i) {
+            candidate.addLast(list.get(i));
+        }
+        candidate.addLast(b);
+        for (int i = list.indexOf(c) + 1; i < list.size(); ++i) {
+            candidate.addLast(list.get(i));
+        }
+
+        if (candidates.contains(candidate) || checkReverse(list, candidate))
+            return;
 
         candidates.addLast(candidate);
     }
