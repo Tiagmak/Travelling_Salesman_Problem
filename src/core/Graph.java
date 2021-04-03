@@ -78,8 +78,6 @@ public class Graph {
                          case -1:
                              break;
                          case 0:
-                             int index = candidates.indexOf(list);
-                             ++numberIntersections[index];
                              break;
                          case 1:
                              if (candidates.peekFirst() != null)
@@ -91,8 +89,6 @@ public class Graph {
                 }
             }
         }
-
-        System.out.println(Arrays.toString(numberIntersections));
     }
 
     public void nearest() {
