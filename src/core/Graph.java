@@ -2,15 +2,11 @@ import java.awt.Point;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-// Classe que representa um no
 class Node {
-    //public LinkedList<Node> adj;
     public boolean visited;
-    //public int distance;
     Point point;
 
     Node(Point p) {
-        //this.adj = new LinkedList<Node>();
         this.point = p;
     }
 }
@@ -20,15 +16,12 @@ public class Graph {
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
     public int[] numberIntersections;
-    public LinkedList<Point> bestUntilNowPerimeter;
-    int lowestPerimeterIndex, lowestPerimeter = (int) Math.pow(10, 9);
 
     public Graph(int n) {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
         numberIntersections = new int[n];
         Arrays.fill(numberIntersections, 0);
-        lowestPerimeterIndex = n - 1;
     }
 
     public void addPoint(Point p) {
@@ -58,7 +51,48 @@ public class Graph {
         graphRandom(n, i, min, max);
     }
 
-    public void toExchange(LinkedList<Point> list, int option) {
+    private int checkPerimeter(boolean first, Point a, Point b, Point c, Point d) {
+        // get out
+        double distanceA1 = a.distance(b);
+        double distanceA2 = c.distance(d);
+        double distanceA3, distanceA4;
+
+        if (first) {
+            // get in
+            distanceA3 = a.distance(c);
+            distanceA4 = b.distance(d);
+        } else {
+            // get in
+            distanceA3 = a.distance(d);
+            distanceA4 = c.distance(b);
+        }
+
+        return  (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
+    }
+
+    private double getPerimeter(LinkedList<Point> l) {
+        double distance = 0;
+        int len = l.size();
+        for(int i = 0; i < len; i++) {
+            distance += l.get(i).distance(l.get((i+1)%len));
+        }
+        return distance;
+    }
+
+    public int getLowestPerimeter() {
+        double minPerimeter = getPerimeter(candidates.get(0));
+        int index = 0;
+        for (LinkedList<Point> l : candidates) {
+            double lp = getPerimeter(l);
+            if (lp < minPerimeter) {
+                minPerimeter = lp;
+                index = candidates.indexOf(l);
+            }
+        }
+        return index;
+    }
+
+    public void toExchange(LinkedList<Point> list) {
         candidates = new LinkedList<>();
         int a, c;
 
@@ -69,7 +103,7 @@ public class Graph {
 
                 if (!(list.get(a).equals(list.get(c + 1)))) {
                     if (doIntersect(list, a, c)) {
-                        checkCase(list, a, c);
+                        candidates.addLast(checkCase(list, a, c));
                     }
                 }
             }
@@ -131,7 +165,7 @@ public class Graph {
         return o4 == 0 && onSegment(c, b, d);// Doesn't fall in any of the above cases
     }
 
-    private void checkCase(LinkedList<Point> list, int a, int c) {
+    private LinkedList<Point> checkCase(LinkedList<Point> list, int a, int c) {
         int perimeterFirst = 0;
         int perimeterSecond = 0;
 
@@ -185,32 +219,14 @@ public class Graph {
 
         if (perimeterFirst < perimeterSecond) {
             if (!candidates.contains(candidate)) {
-                candidates.addLast(candidate);
+                return candidate;
             }
         } else {
             if (!candidates.contains(candidate2)) {
-                candidates.addLast(candidate2);
+                return candidate2;
             }
         }
-    }
-
-    private int checkPerimeter(boolean first, Point a, Point b, Point c, Point d) {
-        // get out
-        double distanceA1 = a.distance(b);
-        double distanceA2 = c.distance(d);
-        double distanceA3, distanceA4;
-
-        if (first) {
-            // get in
-            distanceA3 = a.distance(c);
-            distanceA4 = b.distance(d);
-        } else {
-            // get in
-            distanceA3 = a.distance(d);
-            distanceA4 = c.distance(b);
-        }
-
-        return  (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
+        return null;
     }
 
     public boolean contains(Point givenPoint) {
@@ -280,17 +296,6 @@ public class Graph {
                 System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
             }
             System.out.println("\n");
-        }
-    }
-
-    public void printLeastPerimeter() {
-        for (LinkedList<Point> L : candidates) {
-            if (L.equals(candidates.get(lowestPerimeterIndex))) {
-                for (Point p : L) {
-                    System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
-                }
-                System.out.println("\n");
-            }
         }
     }
 }
