@@ -87,18 +87,24 @@ public class Core {
         int h = in.nextInt();
         switch (h) {
             case 1:
-                if (g.candidates.peekFirst() != null) {
+                /*if (g.candidates.peekFirst() != null) {
                     int index = g.getLowestPerimeter();
                     g.toExchange(g.candidates.get(index));
+                }*/
+                while(g.candidates.peekFirst() != null){
+                    int index = g.getLowestPerimeter();
+                    g.toExchange_(g.candidates.get(index));
                 }
-
+                System.out.println("[ APPLIED LOWEST PERIMETER ]");
+                    System.out.println("[ NEW CANDIDATES: ]");
+/*
                 if (g.candidates.peekFirst() != null) {
                     System.out.println("[ APPLIED LOWEST PERIMETER ]");
                     System.out.println("[ NEW CANDIDATES: ]");
                     g.printCandidates();
                 } else {
                     System.out.println("[ NO INTERSECTIONS ]");
-                }
+                }*/
                 System.out.println();
                 break;
 

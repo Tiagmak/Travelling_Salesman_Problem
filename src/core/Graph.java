@@ -366,7 +366,7 @@ public class Graph {
                 }
             }
         }
-        if (candidates.size() == 0) {
+        if (candidates.peekFirst() == null) {
             printList(list);
         }
     }
