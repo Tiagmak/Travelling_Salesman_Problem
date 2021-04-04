@@ -118,6 +118,15 @@ public class Core {
                 break;
 
             case 3:
+                if (g.candidates.peekFirst() != null)
+                    g.leastIntersections();
+                if (g.candidates.peekFirst() != null) {
+                    System.out.println("[ APPLIED LEAST CONFLITS ]");
+                    System.out.println("[ NEW CANDIDATES: ]");
+                    g.printCandidates();
+                } else {
+                    System.out.println("[ NO INTERSECTIONS ]");
+                }
                 break;
 
             case 4:

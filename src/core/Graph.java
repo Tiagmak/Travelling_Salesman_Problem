@@ -298,4 +298,88 @@ public class Graph {
             System.out.println("\n");
         }
     }
+
+
+    public void leastIntersections(){
+        if(candidates.size() == 0){
+            return;
+        }
+
+        int intersections = checkIntersections(candidates.get(0));
+        int index = 0;
+        for(int i = 1; i < candidates.size(); i++){
+            int temp = checkIntersections(candidates.get(i));
+            if(temp < intersections){
+                intersections = temp;
+                index = i;
+            }
+        }
+        //System.out.println("Vai atuar em ");
+        //printList(candidates.get(index));
+
+        toExchange_(candidates.get(index));
+        leastIntersections();
+    }
+
+    public int checkIntersections(LinkedList<Point> list) {
+        int a, c;
+        int counter = 0;
+
+        for (int i = 0; i < list.size() - 1; ++i) {
+            for (int j = i + 2; j < list.size() - 1; ++j) {
+                a = i;
+                c = j;
+
+                if (!(list.get(a).equals(list.get(c + 1)))) {
+                    if (doIntersect(list, a, c)) {
+                        counter++;
+                    }
+                }
+            }
+        }
+        
+        return counter;
+    }
+
+
+
+
+
+    public void printList(LinkedList<Point> L){
+        for (Point p : L) {
+                System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
+            }
+            System.out.println("\n");
+    }
+
+
+
+
+
+public void toExchange_(LinkedList<Point> list) {
+        candidates = new LinkedList<>();
+        int a, c;
+
+        for (int i = 0; i < list.size() - 1; ++i) {
+            for (int j = i + 2; j < list.size() - 1; ++j) {
+                a = i;
+                c = j;
+
+                if (!(list.get(a).equals(list.get(c + 1)))) {
+                    if (doIntersect(list, a, c)) {
+                        candidates.addLast(checkCase(list, a, c));
+                    }
+                }
+            }
+        }
+        if(candidates.size() == 0){
+            printList(list);
+        }
+    }
+
+
+
+
+
+
 }
