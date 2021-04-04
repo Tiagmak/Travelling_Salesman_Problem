@@ -60,22 +60,16 @@ public class Graph {
 
     public void toExchange(LinkedList<Point> list, int option) {
         candidates = new LinkedList<>();
-        Point a, b, c, d;
+        int a, c;
 
-        for (int i = 0; i < list.size() - 1;) {
-            a = list.get(i);
-            b = list.get(++i);
-            for (int j = i; j < list.size() - 1;) {
-                c = list.get(j);
-                d = list.get(++j);
+        for (int i = 0; i < list.size() - 1; ++i) {
+            for (int j = i + 2; j < list.size() - 1; ++j) {
+                a = i;
+                c = j;
 
-                if (!(a.equals(c) || b.equals(d) || a.equals(d) || b.equals(c))) {
-                    if (doIntersect(a, b, c, d)) {
-                        checkCase(list, a, b, c, d);
-                        if (option == 1) {
-                            if (candidates.peekFirst() != null)
-                                checkPerimeter(a, b, c, d);
-                        }
+                if (!(list.get(a).equals(list.get(c + 1)))) {
+                    if (doIntersect(list, a, c)) {
+                        checkCase(list, a, c);
                     }
                 }
             }
@@ -118,121 +112,113 @@ public class Graph {
 
     // The main function that returns true if line segment 'p1q1'
     // and 'p2q2' intersect.
-    private boolean doIntersect(Point p1, Point q1, Point p2, Point q2) {
+    private boolean doIntersect(LinkedList<Point> list, int s1, int s2) {
+        Point a = list.get(s1);
+        Point b = list.get(s1 + 1);
+        Point c = list.get(s2);
+        Point d = list.get(s2 + 1);
+
         // Find the four orientations needed for general and
         // special cases
-        int o1 = orientation(p1, q1, p2);
-        int o2 = orientation(p1, q1, q2);
-        int o3 = orientation(p2, q2, p1);
-        int o4 = orientation(p2, q2, q1);
-
-        // General case
-        if (o1 != o2 && o3 != o4)
-            return true;
-
-        // Special Cases
-        // p1, q1 and p2 are colinear and p2 lies on segment p1q1
-        if (o1 == 0 && onSegment(p1, p2, q1)) return true;
-
-        // p1, q1 and q2 are colinear and q2 lies on segment p1q1
-        if (o2 == 0 && onSegment(p1, q2, q1)) return true;
-
-        // p2, q2 and p1 are colinear and p1 lies on segment p2q2
-        if (o3 == 0 && onSegment(p2, p1, q2)) return true;
-
-        // p2, q2 and q1 are colinear and q1 lies on segment p2q2
-        return o4 == 0 && onSegment(p2, q1, q2);// Doesn't fall in any of the above cases
+        int o1 = orientation(a, b, c);
+        int o2 = orientation(a, b, d);
+        int o3 = orientation(c, d, a);
+        int o4 = orientation(c, d, b);
+        if (o1 != o2 && o3 != o4) return true;
+        if (o1 == 0 && onSegment(a, c, b)) return true;
+        if (o2 == 0 && onSegment(a, d, b)) return true;
+        if (o3 == 0 && onSegment(c, a, d)) return true;
+        return o4 == 0 && onSegment(c, b, d);// Doesn't fall in any of the above cases
     }
 
-    private boolean checkReverse(LinkedList<Point> list, LinkedList<Point> candidate) {
-        for (int i = 1; i < list.size() - 1; ++i) {
-            if (list.get(i).equals(candidate.get(candidate.size() - 1 - i))) {
-                return true;
-            }
-        }
-        return false;
-    }
+    private void checkCase(LinkedList<Point> list, int a, int c) {
+        int perimeterFirst = 0;
+        int perimeterSecond = 0;
 
-    private void checkCase(LinkedList<Point> list, Point a, Point b, Point c, Point d) {
-        if (list.indexOf(c) < list.indexOf(a)) {
-            Point tmp = a;
-            a = c;
-            c = tmp;
-            tmp = b;
-            b = d;
-            d = b;
-        }
-        System.out.println("\nA " + a + "\nB " + b + "\nC " + c + "\nD " + d);
+        int tmp_a = a;
+        int tmp_c = c;
+        a = Math.min(tmp_a, tmp_c);
+        c = Math.max(tmp_a, tmp_c);
+
+        int b = a + 1;
+        int d = c + 1;
+        Point point_a = list.get(a);
+        Point point_b = list.get(b);
+        Point point_c = list.get(c);
+        Point point_d = list.get(d);
 
         /* FIRST OPTION */
         // A B C D => A C B D
         LinkedList<Point> candidate = new LinkedList<>();
-        for (int i = 0; i < list.indexOf(b); ++i) {
+        for (int i = 0; i < a; ++i) {
             candidate.addLast(list.get(i));
         }
-        candidate.addLast(c);
-        for (int i = list.indexOf(c) - 1; i > list.indexOf(b); --i) {
+        candidate.addLast(point_a);
+        for (int i = c; i >= b; --i) {
             candidate.addLast(list.get(i));
         }
-        candidate.addLast(b);
-        for (int i = list.indexOf(c) + 1; i < list.size(); ++i) {
+        candidate.addLast(point_d);
+
+        for (int i = d + 1; i < list.size(); ++i) {
             candidate.addLast(list.get(i));
         }
 
-        // candidates.contains(candidate) ||
-        if (!(checkReverse(list, candidate)))
-            candidates.addLast(candidate);
-
+        perimeterFirst = checkPerimeter(true, point_a, point_b, point_c, point_d);
 
         /* SECOND OPTION */
         // A B C D => A D C B
         LinkedList<Point> candidate2 = new LinkedList<>();
 
-        for (int i = 1; i < list.indexOf(b); ++i) {
+        for (int i = 0; i <= a; ++i) {
             candidate2.addLast(list.get(i));
         }
-        candidate2.addLast(d);
-        for (int i = list.indexOf(c) - 1; i > list.indexOf(b); --i) {
+        candidate2.addLast(point_d);
+
+        for (int i = c - 1; i > b; --i) {
             candidate2.addLast(list.get(i));
         }
-        candidate2.addLast(c);
-        candidate2.addLast(b);
-        for (int i = candidate2.indexOf(b) + 1; i < list.size(); ++i) {
-            if (list.get(i).equals(c) || list.get(i).equals(d)) continue;
+        candidate2.addLast(point_c);
+        candidate2.addLast(point_b);
+
+        for (int i = d + 1; i < list.size(); ++i) {
             candidate2.addLast(list.get(i));
         }
 
-        // If the final segment is to be changed
-        if (list.getLast().equals(d)) {
-            candidate2.addFirst(b);
+        if (d == list.size() - 1) {
+            candidate2.addLast(list.getFirst());
+            candidate2.removeFirst();
+        }
+
+        perimeterSecond = checkPerimeter(false, point_a, point_b, point_c, point_d);
+
+        if (perimeterFirst < perimeterSecond) {
+            if (!candidates.contains(candidate)) {
+                candidates.addLast(candidate);
+            }
         } else {
-            candidate2.addFirst(list.getFirst());
+            if (!candidates.contains(candidate2)) {
+                candidates.addLast(candidate2);
+            }
         }
-
-        if (!(candidates.contains(candidate) || checkReverse(list, candidate2)))
-            candidates.addLast(candidate2);
     }
 
-    private void checkPerimeter(Point a, Point b, Point c, Point d) {
-        int index = candidates.size();
-
+    private int checkPerimeter(boolean first, Point a, Point b, Point c, Point d) {
         // get out
         double distanceA1 = a.distance(b);
         double distanceA2 = c.distance(d);
-        // get in
-        double distanceA3 = a.distance(c);
-        double distanceA4 = b.distance(d);
+        double distanceA3, distanceA4;
 
-        int deltaPerimeter = (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
-
-        if (deltaPerimeter < lowestPerimeter) {
-            lowestPerimeterIndex = index - 1;
-            LinkedList<Point> candidate = new LinkedList<>();
-            for (Point p : candidates.get(lowestPerimeterIndex)) {
-                candidate.addLast(p);
-            }
-            bestUntilNowPerimeter = candidate;
+        if (first) {
+            // get in
+            distanceA3 = a.distance(c);
+            distanceA4 = b.distance(d);
+        } else {
+            // get in
+            distanceA3 = a.distance(d);
+            distanceA4 = c.distance(b);
         }
+
+        return  (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
     }
 
     public boolean contains(Point givenPoint) {
