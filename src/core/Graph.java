@@ -1,5 +1,4 @@
-import java.awt.Point;
-import java.util.Arrays;
+import java.awt.*;
 import java.util.LinkedList;
 
 class Node {
@@ -15,13 +14,10 @@ public class Graph {
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
-    public int[] numberIntersections;
 
-    public Graph(int n) {
+    public Graph() {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
-        numberIntersections = new int[n];
-        Arrays.fill(numberIntersections, 0);
     }
 
     public void addPoint(Point p) {
@@ -29,12 +25,6 @@ public class Graph {
         nodes.addLast(n);
     }
 
-    /**
-     * @param n   - number of points
-     * @param i   - index
-     * @param min - minimum range
-     * @param max - max range
-     */
     public void graphRandom(int n, int i, int min, int max) {
         if (i == n) return;
 
@@ -77,44 +67,6 @@ public class Graph {
             distance += l.get(i).distance(l.get((i + 1) % len));
         }
         return distance;
-    }
-
-    public int getLowestPerimeter() {
-        double minPerimeter = getPerimeter(candidates.get(0));
-        int index = 0;
-        for (LinkedList<Point> l : candidates) {
-            double lp = getPerimeter(l);
-            if (lp < minPerimeter) {
-                minPerimeter = lp;
-                index = candidates.indexOf(l);
-            }
-        }
-        return index;
-    }
-
-    public void toExchange(LinkedList<Point> list) {
-        candidates = new LinkedList<>();
-        int a, c, i, j;
-
-        for (i = 0; i < list.size() - 1; ++i) {
-            a = i;
-            for (j = i + 2; j < list.size() - 1; ++j) {
-                c = j;
-
-                if (!(list.get(a).equals(list.get(c + 1)))) {
-                    if (doIntersect(list, a, c)) {
-                        candidates.addLast(checkCase(list, a, c));
-                    }
-                }
-            }
-        }
-    }
-
-    public void nearest() {
-        int randA = (int) (Math.random() * (getSize()));
-        Node a = nodes.get(randA);
-
-        findNearest(a);
     }
 
     private int getSize() {
@@ -231,6 +183,44 @@ public class Graph {
         return null;
     }
 
+    public int getLowestPerimeter() {
+        double minPerimeter = getPerimeter(candidates.get(0));
+        int index = 0;
+        for (LinkedList<Point> l : candidates) {
+            double lp = getPerimeter(l);
+            if (lp < minPerimeter) {
+                minPerimeter = lp;
+                index = candidates.indexOf(l);
+            }
+        }
+        return index;
+    }
+
+    public void toExchange(LinkedList<Point> list) {
+        candidates = new LinkedList<>();
+        int a, c, i, j;
+
+        for (i = 0; i < list.size() - 1; ++i) {
+            a = i;
+            for (j = i + 2; j < list.size() - 1; ++j) {
+                c = j;
+
+                if (!(list.get(a).equals(list.get(c + 1)))) {
+                    if (doIntersect(list, a, c)) {
+                        candidates.addLast(checkCase(list, a, c));
+                    }
+                }
+            }
+        }
+    }
+
+    public void nearest() {
+        int randA = (int) (Math.random() * (getSize()));
+        Node a = nodes.get(randA);
+
+        findNearest(a);
+    }
+
     public boolean contains(Point givenPoint) {
         int i = 0;
 
@@ -316,8 +306,6 @@ public class Graph {
                 index = i;
             }
         }
-        //System.out.println("Vai atuar em ");
-        //printList(candidates.get(index));
 
         toExchange_(candidates.get(index));
         leastIntersections();
