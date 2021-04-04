@@ -150,43 +150,35 @@ public class Graph {
         /* FIRST OPTION */
         // A B C D => A C B D
         LinkedList<Point> candidate = new LinkedList<>();
-        for (int i = 0; i < a; ++i) {
+        for (int i = 0; i <= a; ++i) {
             candidate.addLast(list.get(i));
         }
-        candidate.addLast(point_a);
         for (int i = c; i >= b; --i) {
             candidate.addLast(list.get(i));
         }
-        candidate.addLast(point_d);
-
-        for (int i = d + 1; i < list.size(); ++i) {
+        for (int i = d; i < list.size(); ++i) {
             candidate.addLast(list.get(i));
         }
 
         perimeterFirst = checkPerimeter(true, point_a, point_b, point_c, point_d);
 
         /* SECOND OPTION */
-        // A B C D => A D C B
+        // A B C D => A C B D => A C D B => A D C B
+
         LinkedList<Point> candidate2 = new LinkedList<>();
-
-        for (int i = 0; i <= a; ++i) {
-            candidate2.addLast(list.get(i));
+        for (Point p: candidate) {
+            candidate2.addLast(p);
         }
-        candidate2.addLast(point_d);
 
-        for (int i = c - 1; i > b; --i) {
-            candidate2.addLast(list.get(i));
-        }
-        candidate2.addLast(point_c);
-        candidate2.addLast(point_b);
+        Point tmp = candidate2.get(b);
+        Point tmp2 = candidate2.get(c);
 
-        for (int i = d + 1; i < list.size(); ++i) {
-            candidate2.addLast(list.get(i));
-        }
+        candidate2.set(b, candidate2.get(d));
+        candidate2.set(c, tmp);
+        candidate2.set(d, tmp2);
 
         if (d == list.size() - 1) {
-            candidate2.addLast(list.getFirst());
-            candidate2.removeFirst();
+            candidate2.set(0, tmp2);
         }
 
         perimeterSecond = checkPerimeter(false, point_a, point_b, point_c, point_d);
