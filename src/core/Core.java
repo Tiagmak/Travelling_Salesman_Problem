@@ -91,12 +91,12 @@ public class Core {
                     int index = g.getLowestPerimeter();
                     g.toExchange(g.candidates.get(index));
                 }*/
+                System.out.println("[ APPLIED LOWEST PERIMETER ]");
+                System.out.println("[ NEW CANDIDATES: ]");
                 while(g.candidates.peekFirst() != null){
                     int index = g.getLowestPerimeter();
                     g.toExchange_(g.candidates.get(index));
                 }
-                System.out.println("[ APPLIED LOWEST PERIMETER ]");
-                    System.out.println("[ NEW CANDIDATES: ]");
 /*
                 if (g.candidates.peekFirst() != null) {
                     System.out.println("[ APPLIED LOWEST PERIMETER ]");
@@ -109,23 +109,25 @@ public class Core {
                 break;
 
             case 2:
-                if (g.candidates.peekFirst() != null) {
+                /*if (g.candidates.peekFirst() != null) {
                     g.toExchange(g.candidates.get(0));
-                }
-
-                if (g.candidates.peekFirst() != null) {
+                }*/
                     System.out.println("[ APPLIED FIRST CANDIDATE ]");
                     System.out.println("[ NEW CANDIDATES: ]");
+                while(g.candidates.peekFirst() != null){
+                    g.toExchange_(g.candidates.get(0));
+                }/*
+                if (g.candidates.peekFirst() != null) {
                     g.printCandidates();
                 } else {
                     System.out.println("[ NO INTERSECTIONS ]");
-                }
+                }*/
                 System.out.println();
                 break;
 
             case 3:
-                if (g.candidates.peekFirst() != null)
-                    g.leastIntersections();
+                //if (g.candidates.peekFirst() != null)
+                //    g.leastIntersections();
                 if (g.candidates.peekFirst() != null) {
                     System.out.println("[ APPLIED LEAST CONFLITS ]");
                     System.out.println("[ NEW CANDIDATES: ]");
@@ -136,18 +138,24 @@ public class Core {
                 break;
 
             case 4:
-                int rand = (int)(Math.random() * ((g.candidates.size())));
-                if (g.candidates.peekFirst() != null)
+                //int rand = (int)(Math.random() * ((g.candidates.size())));
+                /*if (g.candidates.peekFirst() != null)
                     g.toExchange(g.candidates.get(rand));
-
-                if (g.candidates.peekFirst() != null) {
+*/
+                System.out.println("[ APPLIED RANDOM CANDIDATE ]");
+                    System.out.println("[ NEW CANDIDATES: ]");
+                while(g.candidates.peekFirst() != null){
+                    int rand = (int)(Math.random() * ((g.candidates.size())));
+                    g.toExchange_(g.candidates.get(rand));
+                }
+                /*if (g.candidates.peekFirst() != null) {
                     System.out.println("[ APPLIED RANDOM CANDIDATE ]");
                     System.out.println("[ NEW CANDIDATES: ]");
                     g.printCandidates();
                 } else {
                     System.out.println("[ NO INTERSECTIONS ]");
                 }
-                System.out.println();
+                System.out.println();*/
                 break;
         }
     }
