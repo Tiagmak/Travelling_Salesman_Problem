@@ -67,14 +67,14 @@ public class Graph {
             distanceA4 = c.distance(b);
         }
 
-        return  (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
+        return (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
     }
 
     private double getPerimeter(LinkedList<Point> l) {
         double distance = 0;
         int len = l.size();
-        for(int i = 0; i < len; i++) {
-            distance += l.get(i).distance(l.get((i+1)%len));
+        for (int i = 0; i < len; i++) {
+            distance += l.get(i).distance(l.get((i + 1) % len));
         }
         return distance;
     }
@@ -94,11 +94,11 @@ public class Graph {
 
     public void toExchange(LinkedList<Point> list) {
         candidates = new LinkedList<>();
-        int a, c;
+        int a, c, i, j;
 
-        for (int i = 0; i < list.size() - 1; ++i) {
-            for (int j = i + 2; j < list.size() - 1; ++j) {
-                a = i;
+        for (i = 0; i < list.size() - 1; ++i) {
+            a = i;
+            for (j = i + 2; j < list.size() - 1; ++j) {
                 c = j;
 
                 if (!(list.get(a).equals(list.get(c + 1)))) {
@@ -162,12 +162,13 @@ public class Graph {
         if (o1 == 0 && onSegment(a, c, b)) return true;
         if (o2 == 0 && onSegment(a, d, b)) return true;
         if (o3 == 0 && onSegment(c, a, d)) return true;
-        return o4 == 0 && onSegment(c, b, d);// Doesn't fall in any of the above cases
+        // Doesn't fall in any of the above cases
+        return o4 == 0 && onSegment(c, b, d);
     }
 
     private LinkedList<Point> checkCase(LinkedList<Point> list, int a, int c) {
-        int perimeterFirst = 0;
-        int perimeterSecond = 0;
+        int perimeterFirst;
+        int perimeterSecond;
 
         int tmp_a = a;
         int tmp_c = c;
@@ -184,13 +185,14 @@ public class Graph {
         /* FIRST OPTION */
         // A B C D => A C B D
         LinkedList<Point> candidate = new LinkedList<>();
-        for (int i = 0; i <= a; ++i) {
+        int i;
+        for (i = 0; i <= a; ++i) {
             candidate.addLast(list.get(i));
         }
-        for (int i = c; i >= b; --i) {
+        for (i = c; i >= b; --i) {
             candidate.addLast(list.get(i));
         }
-        for (int i = d; i < list.size(); ++i) {
+        for (i = d; i < list.size(); ++i) {
             candidate.addLast(list.get(i));
         }
 
@@ -200,7 +202,7 @@ public class Graph {
         // A B C D => A C B D => A C D B => A D C B
 
         LinkedList<Point> candidate2 = new LinkedList<>();
-        for (Point p: candidate) {
+        for (Point p : candidate) {
             candidate2.addLast(p);
         }
 
@@ -299,17 +301,17 @@ public class Graph {
         }
     }
 
-
-    public void leastIntersections(){
-        if(candidates.size() == 0){
+    public void leastIntersections() {
+        if (candidates.peekFirst() == null) {
             return;
         }
 
         int intersections = checkIntersections(candidates.get(0));
-        int index = 0;
-        for(int i = 1; i < candidates.size(); i++){
-            int temp = checkIntersections(candidates.get(i));
-            if(temp < intersections){
+        int index = 0, i = 1;
+        int temp;
+        for (; i < candidates.size(); ++i) {
+            temp = checkIntersections(candidates.get(i));
+            if (temp < intersections) {
                 intersections = temp;
                 index = i;
             }
@@ -322,12 +324,12 @@ public class Graph {
     }
 
     public int checkIntersections(LinkedList<Point> list) {
-        int a, c;
+        int a, c, i, j;
         int counter = 0;
 
-        for (int i = 0; i < list.size() - 1; ++i) {
-            for (int j = i + 2; j < list.size() - 1; ++j) {
-                a = i;
+        for (i = 0; i < list.size() - 1; ++i) {
+            a = i;
+            for (j = i + 2; j < list.size() - 1; ++j) {
                 c = j;
 
                 if (!(list.get(a).equals(list.get(c + 1)))) {
@@ -337,26 +339,18 @@ public class Graph {
                 }
             }
         }
-        
+
         return counter;
     }
 
-
-
-
-
-    public void printList(LinkedList<Point> L){
+    public void printList(LinkedList<Point> L) {
         for (Point p : L) {
-                System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
-            }
-            System.out.println("\n");
+            System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
+        }
+        System.out.println("\n");
     }
 
-
-
-
-
-public void toExchange_(LinkedList<Point> list) {
+    public void toExchange_(LinkedList<Point> list) {
         candidates = new LinkedList<>();
         int a, c;
 
@@ -372,14 +366,8 @@ public void toExchange_(LinkedList<Point> list) {
                 }
             }
         }
-        if(candidates.size() == 0){
+        if (candidates.size() == 0) {
             printList(list);
         }
     }
-
-
-
-
-
-
 }
