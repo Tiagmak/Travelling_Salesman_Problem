@@ -1,5 +1,20 @@
-import java.awt.*;
 import java.util.LinkedList;
+
+class Point
+{
+    int x;
+    int y;
+
+    public Point(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double distance(Point p) {
+        return Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
+    }
+}
 
 class Node {
     public boolean visited;
@@ -14,7 +29,6 @@ public class Graph {
     int size;
 
     double minPerimeter;
-
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
@@ -64,9 +78,9 @@ public class Graph {
         double min;
         double max;
 
-        while (candidates.peekFirst() != null && temperature > Double.MIN_VALUE) {
+        while (candidates.peekFirst() != null && temperature > 0) {
 
-            candidate = leastIntersections();
+            candidate = candidates.get(0);
             min = getPerimeter(this.best);
             max = getPerimeter(candidate);
 
@@ -127,9 +141,6 @@ public class Graph {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // CHECKING INTERSECTIONS
-    ///////////////////////////////////////////////////////////////////////
     public boolean checkIntersection(LinkedList<Point> list, int a, int c) {
         double Ax = list.get(a).x;
         double Bx = list.get(a + 1).x;
@@ -260,15 +271,21 @@ public class Graph {
         int a, c, i, j;
         int counter = 0;
 
-        for (i = 0; i < list.size() - 1; ++i) {
-            a = i;
-            for (j = 0; j < list.size() - 1; ++j) {
-                c = j;
+        for (i = 0; i < size - 1; ++i) {
+            for (j = 0; j < size - 1; ++j) {
+                a = Math.min(i, j);
+                c = Math.max(i, j);
 
                 if (checkIntersection(list, a, c)) {
-                    counter++;
+                    ++counter;
                 }
             }
+        }
+
+        a = 1;
+        c = size - 2;
+        if (checkIntersection(list, a, c)) {
+            ++counter;
         }
 
         return counter;
@@ -278,8 +295,8 @@ public class Graph {
         candidates = new LinkedList<>();
         int a, c, i, j;
 
-        for (i = 0; i < size; ++i) {
-            for (j = 0; j < size; ++j) {
+        for (i = 0; i < size - 1; ++i) {
+            for (j = 0; j < size - 1; ++j) {
                 a = Math.min(i, j);
                 c = Math.max(i, j);
 
@@ -287,6 +304,12 @@ public class Graph {
                     candidates.addLast(checkCase(list, a, c));
                 }
             }
+        }
+
+        a = 1;
+        c = size - 2;
+        if (checkIntersection(list, a, c)) {
+            candidates.addLast(checkCase(list, a, c));
         }
     }
 
@@ -369,7 +392,7 @@ public class Graph {
         Point p = list.get(0);
         for (int i = 0; i <= size; ++i) {
             p = list.get(i);
-            s.append("(").append((int) p.getX()).append(",").append((int) p.getY()).append(")");
+            s.append("(").append((int) p.x).append(",").append((int) p.y).append(")");
         }
         s.append("\n\n");
 
