@@ -58,23 +58,24 @@ public class Graph {
 
     void simulatedAnnealing() {
         LinkedList<Point> candidate;
-        double temperature = checkIntersections(this.best);
+        this.best = leastIntersections();
+        toExchange(this.best);
+        double temperature = (double) checkIntersections(this.best);
         double min;
         double max;
 
-        while (!candidates.isEmpty() && temperature > 0.0d) {
+        while (candidates.peekFirst() != null && temperature > 0) {
 
-            candidate = randomList();
-            min = minPerimeter;
+            candidate = leastIntersections();
+            min = getPerimeter(this.best);
             max = getPerimeter(candidate);
 
             if (acceptanceProbability(min, max, temperature) == 1) {
                 this.best = candidate;
-                minPerimeter = max;
                 toExchange(this.best);
             }
 
-            temperature = 0.98 * temperature;
+            temperature = (double) 0.98 * temperature;
         }
     }
 
@@ -144,10 +145,12 @@ public class Graph {
         //  Fail if either line segment is zero-length.
         if (Ax == Bx && Ay == By || Cx == Dx && Cy == Dy) return false;
 
-        //  Fail if the segments share an end-point.
-        if (Ax == Cx && Ay == Cy || Bx == Cx && By == Cy
-                || Ax == Dx && Ay == Dy || Bx == Dx && By == Dy) {
-            return false;
+        if (!(a == 0 && (c + 1) == size - 2)) {
+            //  Fail if the segments share an end-point.
+            if (Ax == Cx && Ay == Cy || Bx == Cx && By == Cy
+                    || Ax == Dx && Ay == Dy || Bx == Dx && By == Dy) {
+                return false;
+            }
         }
 
         //  (1) Translate the system so that point A is on the origin.
@@ -235,9 +238,9 @@ public class Graph {
         }
     }
 
-    public void leastIntersections() {
+    public LinkedList<Point> leastIntersections() {
         if (candidates.peekFirst() == null) {
-            return;
+            return null;
         }
 
         int itxns = checkIntersections(candidates.get(0));
@@ -252,7 +255,7 @@ public class Graph {
             }
         }
 
-        best = candidates.get(index);
+        return candidates.get(index);
     }
 
     public int checkIntersections(LinkedList<Point> list) {
@@ -261,13 +264,11 @@ public class Graph {
 
         for (i = 0; i < list.size() - 1; ++i) {
             a = i;
-            for (j = i + 2; j < list.size() - 1; ++j) {
+            for (j = 0; j < list.size() - 1; ++j) {
                 c = j;
 
-                if (!(list.get(a).equals(list.get(c + 1)))) {
-                    if (checkIntersection(list, a, c)) {
-                        counter++;
-                    }
+                if (checkIntersection(list, a, c)) {
+                    counter++;
                 }
             }
         }
@@ -276,7 +277,6 @@ public class Graph {
     }
 
     public void toExchange(LinkedList<Point> list) {
-        candidates.clear();
         candidates = new LinkedList<>();
         int a, c, i, j;
 
