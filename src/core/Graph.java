@@ -46,7 +46,7 @@ public class Graph {
 
     double acceptanceProbability(double min, double max, double temp) {
         if (max < min)
-            return 1;
+            return 1.0;
         else
             return Math.exp((min - max) / temp);
     }
@@ -64,13 +64,13 @@ public class Graph {
         double min;
         double max;
 
-        while (candidates.peekFirst() != null && temperature > 0) {
+        while (candidates.peekFirst() != null && temperature > Double.MIN_VALUE) {
 
             candidate = leastIntersections();
             min = getPerimeter(this.best);
             max = getPerimeter(candidate);
 
-            if (acceptanceProbability(min, max, temperature) == 1) {
+            if (acceptanceProbability(min, max, temperature) == 1.0) {
                 this.best = candidate;
                 toExchange(this.best);
             }
@@ -145,12 +145,10 @@ public class Graph {
         //  Fail if either line segment is zero-length.
         if (Ax == Bx && Ay == By || Cx == Dx && Cy == Dy) return false;
 
-        if (!(a == 0 && (c + 1) == size - 2)) {
-            //  Fail if the segments share an end-point.
-            if (Ax == Cx && Ay == Cy || Bx == Cx && By == Cy
-                    || Ax == Dx && Ay == Dy || Bx == Dx && By == Dy) {
-                return false;
-            }
+        //  Fail if the segments share an end-point.
+        if (Ax == Cx && Ay == Cy || Bx == Cx && By == Cy
+                || Ax == Dx && Ay == Dy || Bx == Dx && By == Dy) {
+            return false;
         }
 
         //  (1) Translate the system so that point A is on the origin.
