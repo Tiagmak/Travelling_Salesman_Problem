@@ -1,17 +1,19 @@
 import java.util.Scanner;
 
-class Utils {
-    int n = 0, n_max = 0, min, max;
+public class Core {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n, n_max, min, max;
+        Graph g = null;
 
-    /**
-     * Getting user input and ensuring the number of given points
-     * is within range. This way, we can guarantee further on that
-     * all points are different.
-     */
-    public void getRange(Scanner in) {
+        /*
+         * Getting user input and ensuring the number of given points
+         * is within range. This way, we can guarantee further on that
+         * all points are different.
+         */
         System.out.println("Limite inferior e superior? ");
-        this.min = in.nextInt();
-        this.max = in.nextInt();
+        min = in.nextInt();
+        max = in.nextInt();
 
         int range = 0;
 
@@ -24,22 +26,19 @@ class Utils {
         } else {
             range = Math.abs(max) - Math.abs(min);
         }
+        n_max = range * range;
 
-        this.n_max = range * range;
-    }
-
-    public void getNumberOfPoints(Scanner in) {
-        System.out.println("Quantos pontos? Inserir no máximo " + this.n_max + ".");
-        this.n = in.nextInt();
-        while (this.n > this.n_max) {
+        System.out.println("Quantos pontos? Inserir no máximo " + n_max + ".");
+        n = in.nextInt();
+        while (n > n_max) {
             System.out.println("Try again...");
-            this.n = in.nextInt();
+            n = in.nextInt();
         }
-    }
 
-    public void generateGraph(Graph g) {
         /*
          * Create a new graph that contains the given number of points.
+         * Ensures that a generated graph has at least one intersection.
+         * This way the program may continue.
          *
          * graphRandom - a recursive function that adds points to it's
          * instance graph. Only adds those that aren't already part of it.
@@ -54,27 +53,19 @@ class Utils {
          * with the smallest perimeter is the one which is ultimately
          * added to the candidates list.
          */
-        g.graphRandom(n, 0, min, max);
-        g.nearest();
-        g.toExchange(g.nearest);
-
-        /*
-         * Ensures that a generated graph has at least one intersection.
-         * This way the program may continue.
-         */
-        while (g.candidates.peekFirst() == null) {
+        boolean ok = false;
+        while (!ok) {
+            g = new Graph(n);
             g.graphRandom(n, 0, min, max);
             g.nearest();
             g.toExchange(g.nearest);
+            if (g.candidates.peekFirst() != null) ok = true;
         }
 
-        System.out.println("\n\n[ Original graph: ]" + "\n\n" + g.printNearest() + "\n");
+        System.out.println("\n\n[ Original graph: ]" + "\n\n" + g.listToString(g.nearest) + "\n");
         System.out.println("[ Number of intersections: " + g.candidates.size() + " ]\n");
         System.out.println("[ Candidates: ]" + "\n");
-        g.printCandidates();
-    }
-
-    public void menu(Scanner in, Graph g) {
+        System.out.println(g.candidatesToString());
 
         System.out.println("\n[ Heurística escolhida ? ]");
         System.out.println("1) Menor perímetro\n" +
@@ -84,63 +75,47 @@ class Utils {
 
         int h = in.nextInt();
         switch (h) {
-            case 1:
+            case 1 -> {
                 System.out.println("\n[ APPLIED LOWEST PERIMETER (best-improvement first) ]");
                 System.out.println("[ RESULT: ]");
                 while (g.candidates.peekFirst() != null) {
                     int index = g.getLowestPerimeter();
-                    g.toExchange_(g.candidates.get(index));
+                    g.toExchange(g.candidates.get(index));
                 }
-
-                System.out.println();
-
-                break;
-
-            case 2:
-                System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
-                System.out.println("[ RESULT: ]");
-                while (g.candidates.peekFirst() != null) {
-                    g.toExchange_(g.candidates.get(0));
-                }
-
-                System.out.println();
-
-                break;
-
-            case 3:
-                System.out.println("\n[ APPLIED LEAST CONFLICTS ]");
-                System.out.println("[ RESULT: ]");
-                g.leastIntersections();
-
                 if (g.candidates.peekFirst() == null) {
                     System.out.println("[ NO INTERSECTIONS ]");
                 }
-
-                break;
-
-            case 4:
+            }
+            case 2 -> {
+                System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
+                System.out.println("[ RESULT: ]");
+                while (g.candidates.peekFirst() != null) {
+                    g.toExchange(g.candidates.get(0));
+                }
+                if (g.candidates.peekFirst() == null) {
+                    System.out.println("[ NO INTERSECTIONS ]");
+                }
+            }
+            case 3 -> {
+                System.out.println("\n[ APPLIED LEAST CONFLICTS ]");
+                System.out.println("[ RESULT: ]");
+                g.leastIntersections();
+                if (g.candidates.peekFirst() == null) {
+                    System.out.println("[ NO INTERSECTIONS ]");
+                }
+            }
+            case 4 -> {
                 System.out.println("\n[ APPLIED RANDOM CANDIDATE ]");
                 System.out.println("[ RESULT: ]");
                 while (g.candidates.peekFirst() != null) {
                     int rand = (int) (Math.random() * ((g.candidates.size())));
-                    g.toExchange_(g.candidates.get(rand));
+                    g.toExchange(g.candidates.get(rand));
                 }
-
-                break;
+                if (g.candidates.peekFirst() == null) {
+                    System.out.println("[ NO INTERSECTIONS ]");
+                }
+            }
         }
-    }
-}
-
-public class Core {
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        Utils utils = new Utils();
-        Graph g = new Graph();
-
-        utils.getRange(in);
-        utils.getNumberOfPoints(in);
-        utils.generateGraph(g);
-        utils.menu(in, g);
     }
 }
 

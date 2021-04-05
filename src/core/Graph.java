@@ -14,118 +14,134 @@ public class Graph {
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
+    int size = 0;
 
-    public Graph() {
+    public Graph(int size) {
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
+        this.size = size;
     }
 
-    public void addPoint(Point p) {
-        Node n = new Node(p);
-        nodes.addLast(n);
-    }
+    public boolean contains(Point givenPoint) {
+        int i = 0;
 
-    public void graphRandom(int n, int i, int min, int max) {
-        if (i == n) return;
+        if (nodes.size() == 0) return false;
 
-        int x = (int) (Math.random() * (max - min + 1) + min);
-        int y = (int) (Math.random() * (max - min + 1) + min);
-
-        Point p = new Point(x, y);
-
-        // check if already in
-        if (!contains(p)) {
-            addPoint(p);
+        while (i < nodes.size()) {
+            if (nodes.get(i).point.equals(givenPoint)) {
+                return true;
+            }
             ++i;
         }
-        graphRandom(n, i, min, max);
+        return false;
     }
 
-    private int checkPerimeter(boolean first, Point a, Point b, Point c, Point d) {
-        // get out
-        double distanceA1 = a.distance(b);
-        double distanceA2 = c.distance(d);
-        double distanceA3, distanceA4;
+    ///////////////////////////////////////////////////////////////////////
+    // GENERATING NEAREST NEIGHBOUR
+    ///////////////////////////////////////////////////////////////////////
+    public void nearest() {
+        int randA = (int) (Math.random() * (size));
+        Node a = nodes.get(randA);
 
-        if (first) {
-            // get in
-            distanceA3 = a.distance(c);
-            distanceA4 = b.distance(d);
-        } else {
-            // get in
-            distanceA3 = a.distance(d);
-            distanceA4 = c.distance(b);
-        }
-
-        return (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
+        findNearest(a);
     }
 
-    private double getPerimeter(LinkedList<Point> l) {
+    public void findNearest(Node a) {
+        nearest.addLast(a.point);
+        a.visited = true;
+        Node next = null;
+
+        int i = 0;
+        int nextCandidate = 0;
+        int flag = 0;
         double distance = 0;
-        int len = l.size();
-        for (int i = 0; i < len; i++) {
-            distance += l.get(i).distance(l.get((i + 1) % len));
+
+        while (i < nodes.size()) {
+            Node T = nodes.get(i);
+            if (!T.equals(a)) {                           //para nao pegar nele próprio
+                if (!T.visited) {                           //ainda nao foi visitado
+                    if (flag == 0) {
+                        flag = 1;
+                        nextCandidate = i;
+                        distance = a.point.distance(T.point);
+                        next = nodes.get(i);
+                    } else {
+                        if (a.point.distance(T.point) < distance) {
+                            distance = a.point.distance(T.point);
+                            next = nodes.get(i);
+                            nextCandidate = i;
+                        }
+                    }
+                }
+            }
+            ++i;
         }
-        return distance;
+
+        if (flag == 1) {
+            findNearest(next);
+        } else {
+            nearest.addLast(nearest.get(0));
+        }
     }
 
-    private int getSize() {
-        return nodes.size();
+    ///////////////////////////////////////////////////////////////////////
+    // CHECKING INTERSECTIONS
+    ///////////////////////////////////////////////////////////////////////
+    public boolean checkIntersection(LinkedList<Point> list, int a, int c) {
+        double Ax = list.get(a).x;
+        double Bx = list.get(a + 1).x;
+        double Cx = list.get(c).x;
+        double Dx = list.get(c + 1).x;
+        double Ay = list.get(a).y;
+        double By = list.get(a + 1).y;
+        double Cy = list.get(c).y;
+        double Dy = list.get(c + 1).y;
+
+        double distAB, theCos, theSin, newX, ABpos;
+
+        //  Fail if either line segment is zero-length.
+        if (Ax == Bx && Ay == By || Cx == Dx && Cy == Dy) return false;
+
+        //  Fail if the segments share an end-point.
+        if (Ax == Cx && Ay == Cy || Bx == Cx && By == Cy
+                || Ax == Dx && Ay == Dy || Bx == Dx && By == Dy) {
+            return false;
+        }
+
+        //  (1) Translate the system so that point A is on the origin.
+        Bx -= Ax;
+        By -= Ay;
+        Cx -= Ax;
+        Cy -= Ay;
+        Dx -= Ax;
+        Dy -= Ay;
+
+        //  Discover the length of segment A-B.
+        distAB = Math.sqrt(Bx * Bx + By * By);
+
+        //  (2) Rotate the system so that point B is on the positive X axis.
+        theCos = Bx / distAB;
+        theSin = By / distAB;
+        newX = Cx * theCos + Cy * theSin;
+        Cy = Cy * theCos - Cx * theSin;
+        Cx = newX;
+        newX = Dx * theCos + Dy * theSin;
+        Dy = Dy * theCos - Dx * theSin;
+        Dx = newX;
+
+        //  Fail if segment C-D doesn't cross line A-B.
+        if (Cy < 0. && Dy < 0. || Cy >= 0. && Dy >= 0.) return false;
+
+        //  (3) Discover the position of the intersection point along line A-B.
+        ABpos = Dx + (Cx - Dx) * Dy / (Dy - Cy);
+
+        //  Fail if segment C-D crosses line A-B outside of segment A-B.
+        return !(ABpos < 0.) && !(ABpos > distAB);
     }
 
-    // To find orientation of ordered triplet (p, q, r).
-    // The function returns following values
-    // 0 --> p, q and r are colinear
-    // 1 --> Clockwise
-    // 2 --> Counterclockwise
-    private int orientation(Point p, Point q, Point r) {
-        // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
-        // for details of below formula.
-        int val = (q.y - p.y) * (r.x - q.x) -
-                (q.x - p.x) * (r.y - q.y);
-
-        if (val == 0) return 0; // colinear
-
-        return (val > 0) ? 1 : 2; // clock or counterclock wise
-    }
-
-    // Given three colinear points p, q, r, the function checks if
-    // point q lies on line segment 'pr'
-    private boolean onSegment(Point p, Point q, Point r) {
-        return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) &&
-                q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
-    }
-
-    // The main function that returns true if line segment 'p1q1'
-    // and 'p2q2' intersect.
-    private boolean doIntersect(LinkedList<Point> list, int s1, int s2) {
-        Point a = list.get(s1);
-        Point b = list.get(s1 + 1);
-        Point c = list.get(s2);
-        Point d = list.get(s2 + 1);
-
-        // Find the four orientations needed for general and
-        // special cases
-        int o1 = orientation(a, b, c);
-        int o2 = orientation(a, b, d);
-        int o3 = orientation(c, d, a);
-        int o4 = orientation(c, d, b);
-        if (o1 != o2 && o3 != o4) return true;
-        if (o1 == 0 && onSegment(a, c, b)) return true;
-        if (o2 == 0 && onSegment(a, d, b)) return true;
-        if (o3 == 0 && onSegment(c, a, d)) return true;
-        // Doesn't fall in any of the above cases
-        return o4 == 0 && onSegment(c, b, d);
-    }
-
-    private LinkedList<Point> checkCase(LinkedList<Point> list, int a, int c) {
+    public LinkedList<Point> checkCase(LinkedList<Point> list, int a, int c) {
         int perimeterFirst;
         int perimeterSecond;
-
-        int tmp_a = a;
-        int tmp_c = c;
-        a = Math.min(tmp_a, tmp_c);
-        c = Math.max(tmp_a, tmp_c);
 
         int b = a + 1;
         int d = c + 1;
@@ -183,114 +199,6 @@ public class Graph {
         return null;
     }
 
-    public int getLowestPerimeter() {
-        double minPerimeter = getPerimeter(candidates.get(0));
-        int index = 0;
-        for (LinkedList<Point> l : candidates) {
-            double lp = getPerimeter(l);
-            if (lp < minPerimeter) {
-                minPerimeter = lp;
-                index = candidates.indexOf(l);
-            }
-        }
-        return index;
-    }
-
-    public void toExchange(LinkedList<Point> list) {
-        candidates = new LinkedList<>();
-        int a, c, i, j;
-
-        for (i = 0; i < list.size() - 1; ++i) {
-            a = i;
-            for (j = i + 2; j < list.size() - 1; ++j) {
-                c = j;
-
-                if (!(list.get(a).equals(list.get(c + 1)))) {
-                    if (doIntersect(list, a, c)) {
-                        candidates.addLast(checkCase(list, a, c));
-                    }
-                }
-            }
-        }
-    }
-
-    public void nearest() {
-        int randA = (int) (Math.random() * (getSize()));
-        Node a = nodes.get(randA);
-
-        findNearest(a);
-    }
-
-    public boolean contains(Point givenPoint) {
-        int i = 0;
-
-        if (nodes.size() == 0) return false;
-
-        while (i < nodes.size()) {
-            if (nodes.get(i).point.equals(givenPoint)) {
-                return true;
-            }
-            ++i;
-        }
-        return false;
-    }
-
-    public void findNearest(Node a) {
-        nearest.addLast(a.point);
-        a.visited = true;
-        Node next = null;
-
-        int i = 0;
-        int nextCandidate = 0;
-        int flag = 0;
-        double distance = 0;
-
-        while (i < nodes.size()) {
-            Node T = nodes.get(i);
-            if (!T.equals(a)) {                           //para nao pegar nele próprio
-                if (!T.visited) {                           //ainda nao foi visitado
-                    if (flag == 0) {
-                        flag = 1;
-                        nextCandidate = i;
-                        distance = a.point.distance(T.point);
-                        next = nodes.get(i);
-                    } else {
-                        if (a.point.distance(T.point) < distance) {
-                            distance = a.point.distance(T.point);
-                            next = nodes.get(i);
-                            nextCandidate = i;
-                        }
-                    }
-                }
-            }
-            ++i;
-        }
-
-        if (flag == 1) {
-            findNearest(next);
-        } else {
-            nearest.addLast(nearest.get(0));
-        }
-    }
-
-    public String printNearest() {
-        StringBuilder s = new StringBuilder();
-        for (Point p : nearest) {
-            s.append("(").append((int) p.getX()).append(",").append((int) p.getY()).append(")");
-        }
-
-        return s.toString();
-    }
-
-    public void printCandidates() {
-        for (LinkedList<Point> L : candidates) {
-            for (Point p : L) {
-                System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
-            }
-            System.out.println("\n");
-        }
-    }
-
     public void leastIntersections() {
         if (candidates.peekFirst() == null) {
             return;
@@ -299,6 +207,7 @@ public class Graph {
         int intersections = checkIntersections(candidates.get(0));
         int index = 0, i = 1;
         int temp;
+
         for (; i < candidates.size(); ++i) {
             temp = checkIntersections(candidates.get(i));
             if (temp < intersections) {
@@ -307,7 +216,11 @@ public class Graph {
             }
         }
 
-        toExchange_(candidates.get(index));
+        toExchange(candidates.get(index));
+        if (candidates.size() == 0) {
+            toExchange(candidates.get(index));
+            return;
+        }
         leastIntersections();
     }
 
@@ -321,7 +234,7 @@ public class Graph {
                 c = j;
 
                 if (!(list.get(a).equals(list.get(c + 1)))) {
-                    if (doIntersect(list, a, c)) {
+                    if (checkIntersection(list, a, c)) {
                         counter++;
                     }
                 }
@@ -331,31 +244,120 @@ public class Graph {
         return counter;
     }
 
-    public void printList(LinkedList<Point> L) {
-        for (Point p : L) {
-            System.out.print("(" + (int) p.getX() + "," + (int) p.getY() + ")");
-        }
-        System.out.println("\n");
-    }
-
-    public void toExchange_(LinkedList<Point> list) {
+    public void toExchange(LinkedList<Point> list) {
+        // Tell garbage collector to free whatever memory is not being used
+        System.gc();
         candidates = new LinkedList<>();
-        int a, c;
+        int a, c, i, j;
 
-        for (int i = 0; i < list.size() - 1; ++i) {
-            for (int j = i + 2; j < list.size() - 1; ++j) {
-                a = i;
-                c = j;
+        for (i = 0; i < size; ++i) {
+            for (j = i + 2; j < size; ++j) {
+                a = Math.min(i, j);
+                c = Math.max(i, j);
 
-                if (!(list.get(a).equals(list.get(c + 1)))) {
-                    if (doIntersect(list, a, c)) {
-                        candidates.addLast(checkCase(list, a, c));
-                    }
+                if (checkIntersection(list, a, c)) {
+                    candidates.addLast(checkCase(list, a, c));
                 }
             }
         }
         if (candidates.peekFirst() == null) {
-            printList(list);
+            System.out.println(listToString(list));
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // GENERATING GRAPH
+    ///////////////////////////////////////////////////////////////////////
+    public void addPoint(Point p) {
+        Node n = new Node(p);
+        nodes.addLast(n);
+    }
+
+    public void graphRandom(int n, int i, int min, int max) {
+        if (i == n) return;
+
+        int x = (int) (Math.random() * (max - min + 1) + min);
+        int y = (int) (Math.random() * (max - min + 1) + min);
+
+        Point p = new Point(x, y);
+
+        // check if already in
+        if (!contains(p)) {
+            addPoint(p);
+            ++i;
+        }
+        graphRandom(n, i, min, max);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // CHECKING PERIMETER
+    ///////////////////////////////////////////////////////////////////////
+    public int checkPerimeter(boolean first, Point a, Point b, Point c, Point d) {
+        // get out
+        double distanceA1 = a.distance(b);
+        double distanceA2 = c.distance(d);
+        double distanceA3, distanceA4;
+
+        if (first) {
+            // get in
+            distanceA3 = a.distance(c);
+            distanceA4 = b.distance(d);
+        } else {
+            // get in
+            distanceA3 = a.distance(d);
+            distanceA4 = c.distance(b);
+        }
+
+        return (int) (Math.pow(distanceA3 + distanceA4, 2) - Math.pow(distanceA1 + distanceA2, 2));
+    }
+
+    public double getPerimeter(LinkedList<Point> l) {
+        double distance = 0;
+        for (int i = 0; i <= size; ++i) {
+            distance += l.get(i).distance(l.get((i + 1) % size));
+        }
+        return distance;
+    }
+
+    public int getLowestPerimeter() {
+        double minPerimeter = getPerimeter(candidates.get(0));
+        int index = 0;
+        for (LinkedList<Point> l : candidates) {
+            double lp = getPerimeter(l);
+            if (lp < minPerimeter) {
+                minPerimeter = lp;
+                index = candidates.indexOf(l);
+            }
+        }
+        return index;
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // STRINGS
+    ///////////////////////////////////////////////////////////////////////
+    public String listToString(LinkedList<Point> list) {
+        StringBuilder s = new StringBuilder();
+        Point p;
+        int i = 0;
+        for (; i <= size; ++i) {
+            p = list.get(i);
+            s.append("(").append((int) p.getX()).append(",").append((int) p.getY()).append(")");
+        }
+        s.append("\n\n");
+
+        return s.toString();
+    }
+
+    public String candidatesToString() {
+        assert(candidates != null);
+        StringBuilder s = new StringBuilder();
+        int i = 0;
+
+        for (; i < candidates.size(); ++i) {
+            s.append(listToString(candidates.get(i)));
+        }
+        s.append("\n\n");
+
+        return s.toString();
     }
 }
