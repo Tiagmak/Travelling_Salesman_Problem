@@ -1,5 +1,7 @@
 import java.util.LinkedList;
-
+import java.awt.*;
+import java.util.Random;
+/*
 class Point
 {
     int x;
@@ -15,7 +17,7 @@ class Point
         return Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
     }
 }
-
+*/
 class Node {
     public boolean visited;
     Point point;
@@ -32,24 +34,30 @@ public class Graph {
     public LinkedList<Node> nodes;
     public LinkedList<Point> nearest;
     public LinkedList<LinkedList<Point>> candidates;
+    LinkedList<LinkedList<Point>> candidatesNext;
     LinkedList<Point> candidate1;
     LinkedList<Point> candidate2;
-    LinkedList<Point> best;
+    public LinkedList<Point> current;
+    LinkedList<Point> next;
 
     public Graph(int size) {
         this.size = size;
         nodes = new LinkedList<>();
         nearest = new LinkedList<>();
-        best = new LinkedList<>();
+        current = new LinkedList<>();
+        candidates = new LinkedList<>();
+    }
 
+    private int getSize() {
+        return nodes.size();
     }
 
     public boolean contains(Point givenPoint) {
         int i = 0;
 
-        if (nodes.size() == 0) return false;
+        if (getSize() == 0) return false;
 
-        while (i < nodes.size()) {
+        while (i < getSize()) {
             if (nodes.get(i).point.equals(givenPoint)) {
                 return true;
             }
@@ -58,38 +66,56 @@ public class Graph {
         return false;
     }
 
-    double acceptanceProbability(double min, double max, double temp) {
-        if (max < min)
-            return 1.0;
-        else
-            return Math.exp((min - max) / temp);
+    public void graphRandom(int n, int i, int min, int max) {
+        if (i == n) return;
+
+        int x = (int) (Math.random() * (max - min + 1) + min);
+        int y = (int) (Math.random() * (max - min + 1) + min);
+
+        Point p = new Point(x, y);
+
+        // check if already in
+        if (!contains(p)) {
+            addPoint(p);
+            ++i;
+        }
+        graphRandom(n, i, min, max);
     }
 
-    LinkedList<Point> randomList() {
-        int rand = (int) (Math.random() * ((candidates.size())));
-        return candidates.get(rand);
+    LinkedList<Point> randomList(LinkedList<LinkedList<Point>> neighs) {
+        int rand = (int) (Math.random() * ((neighs.size())));
+        return neighs.get(rand);
     }
 
     void simulatedAnnealing() {
-        LinkedList<Point> candidate;
-        this.best = leastIntersections();
-        toExchange(this.best);
-        double temperature = (double) checkIntersections(this.best);
-        double min;
-        double max;
+        double temperature = 1000;
+        double delta;
 
-        while (candidates.peekFirst() != null && temperature > 0) {
+        candidates = new LinkedList<>();
+        toExchange(nearest, candidates);
+        this.current = leastIntersections(candidates);
+        toExchange(this.current, candidates);
 
-            candidate = candidates.get(0);
-            min = getPerimeter(this.best);
-            max = getPerimeter(candidate);
+        int intxnsCurrent = candidates.size();
+        int intxnsNext;
 
-            if (acceptanceProbability(min, max, temperature) == 1.0) {
-                this.best = candidate;
-                toExchange(this.best);
+        while (candidates.peekFirst() != null) {
+            candidatesNext = new LinkedList<>();
+            this.next  = leastIntersections(candidates);
+            toExchange(this.next, candidatesNext);
+            intxnsNext = candidatesNext.size();
+
+            delta =  intxnsNext - intxnsCurrent;
+            if (delta < 0) {
+                this.current = this.next;
+            } else if (Math.pow(Math.E, (delta / temperature)) > Math.random()) {
+                this.current = this.next;
             }
 
-            temperature = (double) 0.98 * temperature;
+            temperature *= 0.95;
+            candidates = new LinkedList<>();
+            toExchange(this.current, candidates);
+            intxnsCurrent = candidates.size();
         }
     }
 
@@ -197,6 +223,11 @@ public class Graph {
         int perimeterFirst;
         int perimeterSecond;
 
+        int tmp_a = a;
+        int tmp_c = c;
+        a = Math.min(tmp_a, tmp_c);
+        c = Math.max(tmp_a, tmp_c);
+
         int b = a + 1;
         int d = c + 1;
         Point point_a = list.get(a);
@@ -206,7 +237,7 @@ public class Graph {
 
         /* FIRST OPTION */
         // A B C D => A C B D
-        candidate1 = new LinkedList<>();
+        LinkedList<Point> candidate1 = new LinkedList<>();
         int i;
         for (i = 0; i <= a; ++i) {
             candidate1.addLast(list.get(i));
@@ -222,7 +253,8 @@ public class Graph {
 
         /* SECOND OPTION */
         // A B C D => A C B D => A C D B => A D C B
-        candidate2 = new LinkedList<>();
+
+        LinkedList<Point> candidate2 = new LinkedList<>();
         for (Point p : candidate1) {
             candidate2.addLast(p);
         }
@@ -241,76 +273,63 @@ public class Graph {
         perimeterSecond = checkPerimeter(false, point_a, point_b, point_c, point_d);
 
         if (perimeterFirst < perimeterSecond) {
-            return candidate1;
+            if (!candidates.contains(candidate1)) {
+                return candidate1;
+            }
         } else {
-            return candidate2;
+            if (!candidates.contains(candidate2)) {
+                return candidate2;
+            }
         }
+        return null;
     }
 
-    public LinkedList<Point> leastIntersections() {
-        if (candidates.peekFirst() == null) {
+    public LinkedList<Point> leastIntersections(LinkedList<LinkedList<Point>> neighs) {
+        if (neighs.peekFirst() == null) {
             return null;
         }
 
-        int itxns = checkIntersections(candidates.get(0));
+        int itxns = checkIntersections(neighs.get(0));
         int index = 0;
         int intxnTemp;
 
-        for (int i = 0; i < candidates.size(); ++i) {
-            intxnTemp = checkIntersections(candidates.get(i));
+        for (int i = 0; i < neighs.size(); ++i) {
+            intxnTemp = checkIntersections(neighs.get(i));
             if (intxnTemp < itxns) {
                 itxns = intxnTemp;
                 index = i;
             }
         }
 
-        return candidates.get(index);
+        return neighs.get(index);
     }
 
     public int checkIntersections(LinkedList<Point> list) {
-        int a, c, i, j;
+        int i, j;
         int counter = 0;
 
-        for (i = 0; i < size - 1; ++i) {
-            for (j = 0; j < size - 1; ++j) {
-                a = Math.min(i, j);
-                c = Math.max(i, j);
-
-                if (checkIntersection(list, a, c)) {
+        for (i = 0; i < size; ++i) {
+            for (j = i + 2; j < size; ++j) {
+                if (checkIntersection(list, i, j)) {
                     ++counter;
                 }
             }
         }
 
-        a = 1;
-        c = size - 2;
-        if (checkIntersection(list, a, c)) {
-            ++counter;
-        }
-
         return counter;
     }
 
-    public void toExchange(LinkedList<Point> list) {
-        candidates = new LinkedList<>();
-        int a, c, i, j;
+    public void toExchange(LinkedList<Point> list, LinkedList<LinkedList<Point>> neighs) {
+        int i, j;
 
-        for (i = 0; i < size - 1; ++i) {
-            for (j = 0; j < size - 1; ++j) {
-                a = Math.min(i, j);
-                c = Math.max(i, j);
-
-                if (checkIntersection(list, a, c)) {
-                    candidates.addLast(checkCase(list, a, c));
+        for (i = 0; i < size; ++i) {
+            for (j = i + 2; j < size; ++j) {
+                if (checkIntersection(list, i, j)) {
+                    neighs.addLast(checkCase(list, i, j));
                 }
             }
         }
 
-        a = 1;
-        c = size - 2;
-        if (checkIntersection(list, a, c)) {
-            candidates.addLast(checkCase(list, a, c));
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -319,22 +338,6 @@ public class Graph {
     public void addPoint(Point p) {
         Node n = new Node(p);
         nodes.addLast(n);
-    }
-
-    public void graphRandom(int n, int i, int min, int max) {
-        if (i == n) return;
-
-        int x = (int) (Math.random() * (max - min + 1) + min);
-        int y = (int) (Math.random() * (max - min + 1) + min);
-
-        Point p = new Point(x, y);
-
-        // check if already in
-        if (!contains(p)) {
-            addPoint(p);
-            ++i;
-        }
-        graphRandom(n, i, min, max);
     }
 
     ///////////////////////////////////////////////////////////////////////

@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Core {
@@ -53,14 +54,11 @@ public class Core {
          * with the smallest perimeter is the one which is ultimately
          * added to the candidates list.
          */
-        boolean ok = false;
-        while (!ok) {
-            g = new Graph(n);
-            g.graphRandom(n, 0, min, max);
-            g.nearest();
-            g.toExchange(g.nearest);
-            if (g.candidates.peekFirst() != null) ok = true;
-        }
+
+        g = new Graph(n);
+        g.graphRandom(n, 0, min, max);
+        g.nearest();
+        g.toExchange(g.nearest, g.candidates);
 
         System.out.println("\n\n[ Original graph: ]" + "\n\n" + g.listToString(g.nearest) + "\n");
         System.out.println("[ Number of intersections: " + g.candidates.size() + " ]\n");
@@ -69,7 +67,6 @@ public class Core {
         if (g.candidates.peekFirst() != null)
             System.out.println(g.candidatesToString());
 
-/*
         System.out.println("\n[ Heurística escolhida ? ]");
         System.out.println("1) Menor perímetro\n" +
                 "2) Primeiro Candidato\n" +
@@ -83,11 +80,12 @@ public class Core {
                 System.out.println("[ RESULT: ]");
 
                 while (!g.candidates.isEmpty()) {
-                    g.best = g.candidates.get(0);
-                    g.toExchange(g.best);
+                    g.current = g.candidates.get(g.getLowestPerimeter());
+                    g.candidates.clear();
+                    g.toExchange(g.current, g.candidates);
                 }
 
-                System.out.println(g.listToString(g.best));
+                System.out.println(g.listToString(g.current));
                 break;
             }
 
@@ -95,11 +93,13 @@ public class Core {
                 System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
                 System.out.println("[ RESULT: ]");
 
-                g.best = g.candidates.get(0);
-                g.minPerimeter = g.getPerimeter(g.best);
-                g.simulatedAnnealing();
+                while (!g.candidates.isEmpty()) {
+                    g.current = g.candidates.get(0);
+                    g.candidates.clear();
+                    g.toExchange(g.current, g.candidates);
+                }
 
-                System.out.println(g.listToString(g.best));
+                System.out.println(g.listToString(g.current));
                 break;
             }
 
@@ -108,11 +108,12 @@ public class Core {
                 System.out.println("[ RESULT: ]");
 
                 while (!g.candidates.isEmpty()) {
-                    g.leastIntersections();
-                    g.toExchange(g.best);
+                    g.leastIntersections(g.candidates);
+                    g.candidates.clear();
+                    g.toExchange(g.current, g.candidates);
                 }
 
-                System.out.println(g.listToString(g.best));
+                System.out.println(g.listToString(g.current));
 
                 break;
             }
@@ -121,20 +122,18 @@ public class Core {
                 System.out.println("\n[ APPLIED RANDOM CANDIDATE ]");
                 System.out.println("[ RESULT: ]");
 
-                g.best = g.candidates.get(0);
-                g.minPerimeter = g.getPerimeter(g.best);
-                g.simulatedAnnealing();
+                while (!g.candidates.isEmpty()) {
+                    g.leastIntersections(g.candidates);
+                    g.candidates.clear();
+                    g.toExchange(g.current, g.candidates);
+                }
 
-                System.out.println(g.listToString(g.best));
+                System.out.println(g.listToString(g.current));
                 break;
             }
 
             default: break;
         }
-
- */
-
-
 
         System.out.println("\n[ Simulated Annealing ? ]");
         System.out.println("1) Sim\n" +
@@ -146,11 +145,9 @@ public class Core {
                 System.out.println("\n[ APPLIED SIMULATED ANNEALING ]");
                 System.out.println("[ RESULT: ]");
 
-                g.best = g.candidates.get(g.getLowestPerimeter());
-                g.minPerimeter = g.getPerimeter(g.best);
                 g.simulatedAnnealing();
 
-                System.out.println(g.listToString(g.best));
+                System.out.println(g.listToString(g.current));
                 break;
             }
 
