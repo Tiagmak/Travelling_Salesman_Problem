@@ -68,6 +68,7 @@ public class Core {
     switch (h) {
       case 1:
         {
+          long startTime = System.nanoTime();
           System.out.println("\n[ APPLIED LOWEST PERIMETER (best-improvement first) ]");
           System.out.println("[ RESULT: ]");
 
@@ -76,12 +77,14 @@ public class Core {
             neigh.gen();
           }
 
-          System.out.println(neigh.listToString(neigh.candidate));
+          long estimatedTime = System.nanoTime() - startTime;
+          System.out.println(neigh.listToString(neigh.candidate) + "\nLOWEST PERIMETER\n" + estimatedTime);
           break;
         }
 
       case 2:
         {
+          long startTime = System.nanoTime();
           System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
           System.out.println("[ RESULT: ]");
 
@@ -90,12 +93,14 @@ public class Core {
             neigh.gen();
           }
 
-          System.out.println(neigh.listToString(neigh.candidate));
+          long estimatedTime = System.nanoTime() - startTime;
+          System.out.println(neigh.listToString(neigh.candidate) + "\nFIRST\n" + estimatedTime);
           break;
         }
 
       case 3:
         {
+          long startTime = System.nanoTime();
           System.out.println("\n[ APPLIED LEAST CONFLICTS ]");
           System.out.println("[ RESULT: ]");
 
@@ -104,13 +109,15 @@ public class Core {
             neigh.gen();
           }
 
-          System.out.println(neigh.listToString(neigh.candidate));
+          long estimatedTime = System.nanoTime() - startTime;
+          System.out.println(neigh.listToString(neigh.candidate) + "\nLEAST\n" + estimatedTime);
 
           break;
         }
 
       case 4:
         {
+          long startTime = System.nanoTime();
           System.out.println("\n[ APPLIED RANDOM CANDIDATE ]");
           System.out.println("[ RESULT: ]");
 
@@ -119,7 +126,8 @@ public class Core {
             neigh.gen();
           }
 
-          System.out.println(neigh.listToString(neigh.candidate));
+          long estimatedTime = System.nanoTime() - startTime;
+          System.out.println(neigh.listToString(neigh.candidate) + "\nRANDOM\n" + estimatedTime);
           break;
         }
 

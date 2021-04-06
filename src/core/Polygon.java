@@ -23,6 +23,8 @@ public class Polygon {
     int intxnsCurrent = current.neighbours.size();
     int intxnsNext;
 
+    long startTime = System.nanoTime();
+
     while (current.neighbours.peekFirst() != null && temperature > 0.0) {
       Neighbour next = new Neighbour();
       next.add(current.lowestConflictsCandidate());
@@ -47,6 +49,7 @@ public class Polygon {
       intxnsCurrent = current.neighbours.size();
     }
 
-    System.out.println(current.listToString(current.candidate));
+    long estimatedTime = System.nanoTime() - startTime;
+    System.out.println(current.listToString(current.candidate) + "\n" + "ANNEALING" + "\n" + estimatedTime);
   }
 }
