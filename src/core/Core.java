@@ -37,13 +37,14 @@ public class Core {
 
     g = new Graph(n);
     g.graphRandom(n, 0, min, max);
-    g.nearest();
+
+    System.out.println("\n[ Original graph: ]" + "\n" + g.graphRandomToString() + "\n");
 
     Neighbour neigh = new Neighbour();
+    g.nearest();
     neigh.add(g.nearest);
     neigh.gen();
-
-    System.out.println("\n\n[ Original graph: ]" + "\n\n" + neigh.listToString(g.nearest) + "\n");
+    System.out.println("[ Nearest-neighbour first graph: ]" + "\n" + neigh.listToString(g.nearest));
     System.out.println("[ Number of intersections: " + neigh.neighbours.size() + " ]\n");
 
     int h = 0;

@@ -1,20 +1,25 @@
+import java.awt.*;
+import java.util.LinkedList;
+
 public class Polygon {
   public Neighbour current;
   public Graph graph;
 
   public Polygon(Graph graph) {
-    current = new Neighbour();
     this.graph = graph;
     this.graph.nearest();
-    this.current.add(graph.nearest);
-    this.current.gen();
   }
 
   public void simulatedAnnealing() {
     double temperature = 1000;
     double delta;
 
-    this.current.add(this.current.lowestConflictsCandidate());
+    this.current = new Neighbour();
+    this.current.add(graph.nearest);
+    this.current.gen();
+    LinkedList<Point> current_candidate = this.current.neighbours.get(0);
+
+    this.current.add(current_candidate);
     this.current.gen();
 
     int intxnsCurrent = this.current.neighbours.size();
@@ -28,14 +33,20 @@ public class Polygon {
 
       delta = intxnsNext - intxnsCurrent;
       if (delta < 0) {
-        this.current.add(next.candidate);
-      } else if (Math.pow(Math.E, (delta / temperature)) > Math.random()) {
-        this.current.add(next.candidate);
+        current_candidate = next.candidate;
+      } else {
+        double prob_accept_worse = Math.pow(Math.E, (delta / temperature));
+        if (prob_accept_worse > Math.random()) {
+          current_candidate = next.candidate;
+        }
       }
 
+      temperature *= 0.95;
+
+      this.current = new Neighbour();
+      this.current.add(current_candidate);
       this.current.gen();
       intxnsCurrent = this.current.neighbours.size();
-      temperature *= 0.95;
     }
   }
 }

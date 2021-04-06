@@ -25,7 +25,8 @@ public class Neighbour {
   }
 
   public void gen() {
-    neighbours = new LinkedList<>();
+    this.neighbours.clear();
+    this.neighbours = new LinkedList<>();
     LinkedList<Point> possible_candidate;
     int a, c;
     boolean last = false;
@@ -165,7 +166,7 @@ public class Neighbour {
     for (Point point : list) {
       s.append("(").append(point.x).append(",").append(point.y).append(")");
     }
-    s.append("\n\n");
+    s.append("\n");
 
     return s.toString();
   }
