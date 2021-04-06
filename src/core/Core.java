@@ -1,158 +1,150 @@
-import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Core {
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int n, n_max, min, max;
-        Graph g = null;
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    int n, n_max, min, max;
+    Graph g = null;
 
-        /*
-         * Getting user input and ensuring the number of given points
-         * is within range. This way, we can guarantee further on that
-         * all points are different.
-         */
-        System.out.println("Limite inferior e superior? ");
-        min = in.nextInt();
-        max = in.nextInt();
+    /*
+     * Getting user input and ensuring the number of given points
+     * is within range. This way, we can guarantee further on that
+     * all points are different.
+     */
+    System.out.println("Limite inferior e superior? ");
+    min = in.nextInt();
+    max = in.nextInt();
 
-        int range = 0;
+    int range = 0;
 
-        if (min == 0) {
-            range = Math.abs(max + 1);
-        } else if (min < 0 && max > 0) {
-            range = Math.abs(max) + Math.abs(min) + 1;
-        } else if (min < 0) {
-            range = Math.abs(max) + Math.abs(min);
-        } else {
-            range = Math.abs(max) - Math.abs(min);
-        }
-        n_max = range * range;
-
-        System.out.println("Quantos pontos? Inserir no máximo " + n_max + ".");
-        n = in.nextInt();
-        while (n > n_max) {
-            System.out.println("Try again...");
-            n = in.nextInt();
-        }
-
-        /*
-         * Create a new graph that contains the given number of points.
-         * Ensures that a generated graph has at least one intersection.
-         * This way the program may continue.
-         *
-         * graphRandom - a recursive function that adds points to it's
-         * instance graph. Only adds those that aren't already part of it.
-         * The recursion stops when the given number of points is met.
-         *
-         * nearest - applies the nearest neighbour algorithm to the whole
-         * graph.
-         *
-         * toExchange - generates a first list of possible candidates.
-         * One candidate is generated for each intersection, and each
-         * intersection has two possible solutions. The one solution
-         * with the smallest perimeter is the one which is ultimately
-         * added to the candidates list.
-         */
-
-        g = new Graph(n);
-        g.graphRandom(n, 0, min, max);
-        g.nearest();
-        g.toExchange(g.nearest, g.candidates);
-
-        System.out.println("\n\n[ Original graph: ]" + "\n\n" + g.listToString(g.nearest) + "\n");
-        System.out.println("[ Number of intersections: " + g.candidates.size() + " ]\n");
-        System.out.println("[ Candidates: ]" + "\n");
-
-        if (g.candidates.peekFirst() != null)
-            System.out.println(g.candidatesToString());
-
-        System.out.println("\n[ Heurística escolhida ? ]");
-        System.out.println("1) Menor perímetro\n" +
-                "2) Primeiro Candidato\n" +
-                "3) Menos conflitos\n" +
-                "4) Candidato aleatório\n");
-
-        int h = in.nextInt();
-        switch (h) {
-            case 1: {
-                System.out.println("\n[ APPLIED LOWEST PERIMETER (best-improvement first) ]");
-                System.out.println("[ RESULT: ]");
-
-                while (!g.candidates.isEmpty()) {
-                    g.current = g.candidates.get(g.getLowestPerimeter());
-                    g.candidates.clear();
-                    g.toExchange(g.current, g.candidates);
-                }
-
-                System.out.println(g.listToString(g.current));
-                break;
-            }
-
-            case 2: {
-                System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
-                System.out.println("[ RESULT: ]");
-
-                while (!g.candidates.isEmpty()) {
-                    g.current = g.candidates.get(0);
-                    g.candidates.clear();
-                    g.toExchange(g.current, g.candidates);
-                }
-
-                System.out.println(g.listToString(g.current));
-                break;
-            }
-
-            case 3: {
-                System.out.println("\n[ APPLIED LEAST CONFLICTS ]");
-                System.out.println("[ RESULT: ]");
-
-                while (!g.candidates.isEmpty()) {
-                    g.leastIntersections(g.candidates);
-                    g.candidates.clear();
-                    g.toExchange(g.current, g.candidates);
-                }
-
-                System.out.println(g.listToString(g.current));
-
-                break;
-            }
-
-            case 4: {
-                System.out.println("\n[ APPLIED RANDOM CANDIDATE ]");
-                System.out.println("[ RESULT: ]");
-
-                while (!g.candidates.isEmpty()) {
-                    g.leastIntersections(g.candidates);
-                    g.candidates.clear();
-                    g.toExchange(g.current, g.candidates);
-                }
-
-                System.out.println(g.listToString(g.current));
-                break;
-            }
-
-            default: break;
-        }
-
-        System.out.println("\n[ Simulated Annealing ? ]");
-        System.out.println("1) Sim\n" +
-                "2) Não\n");
-
-        int s = in.nextInt();
-        switch (s) {
-            case 1: {
-                System.out.println("\n[ APPLIED SIMULATED ANNEALING ]");
-                System.out.println("[ RESULT: ]");
-
-                g.simulatedAnnealing();
-
-                System.out.println(g.listToString(g.current));
-                break;
-            }
-
-            default: break;
-        }
+    if (min == 0) {
+      range = Math.abs(max + 1);
+    } else if (min < 0 && max > 0) {
+      range = Math.abs(max) + Math.abs(min) + 1;
+    } else if (min < 0) {
+      range = Math.abs(max) + Math.abs(min);
+    } else {
+      range = Math.abs(max) - Math.abs(min);
     }
-}
+    n_max = range * range;
 
+    System.out.println("Quantos pontos? Inserir no máximo " + n_max + ".");
+    n = in.nextInt();
+    while (n > n_max) {
+      System.out.println("Try again...");
+      n = in.nextInt();
+    }
+
+    g = new Graph(n);
+    g.graphRandom(n, 0, min, max);
+    g.nearest();
+
+    Neighbour neigh = new Neighbour();
+    neigh.add(g.nearest);
+    neigh.gen();
+
+    System.out.println("\n\n[ Original graph: ]" + "\n\n" + neigh.listToString(g.nearest) + "\n");
+    System.out.println("[ Number of intersections: " + neigh.neighbours.size() + " ]\n");
+
+    int h = 0;
+    if (neigh.neighbours.peekFirst() != null) {
+      System.out.println("[ Candidates: ]" + "\n");
+      System.out.println(neigh.candidatesToString());
+
+      System.out.println("\n[ Heurística escolhida ? ]");
+      System.out.println(
+          "1) Menor perímetro\n"
+              + "2) Primeiro Candidato\n"
+              + "3) Menos conflitos\n"
+              + "4) Candidato aleatório\n");
+
+      h = in.nextInt();
+
+    } else {
+      System.out.println("[ No candidates... ]" + "\n");
+    }
+
+    switch (h) {
+      case 1:
+        {
+          System.out.println("\n[ APPLIED LOWEST PERIMETER (best-improvement first) ]");
+          System.out.println("[ RESULT: ]");
+
+          while (!neigh.neighbours.isEmpty()) {
+            neigh.lowestPerimeterCandidate();
+            neigh.gen();
+          }
+
+          System.out.println(neigh.listToString(neigh.candidate));
+          break;
+        }
+
+      case 2:
+        {
+          System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
+          System.out.println("[ RESULT: ]");
+
+          while (!neigh.neighbours.isEmpty()) {
+            neigh.add(neigh.neighbours.get(0));
+            neigh.gen();
+          }
+
+          System.out.println(neigh.listToString(neigh.candidate));
+          break;
+        }
+
+      case 3:
+        {
+          System.out.println("\n[ APPLIED LEAST CONFLICTS ]");
+          System.out.println("[ RESULT: ]");
+
+          while (!neigh.neighbours.isEmpty()) {
+            neigh.add(neigh.lowestConflictsCandidate());
+            neigh.gen();
+          }
+
+          System.out.println(neigh.listToString(neigh.candidate));
+
+          break;
+        }
+
+      case 4:
+        {
+          System.out.println("\n[ APPLIED RANDOM CANDIDATE ]");
+          System.out.println("[ RESULT: ]");
+
+          while (!neigh.neighbours.isEmpty()) {
+            neigh.randomCandidate();
+            neigh.gen();
+          }
+
+          System.out.println(neigh.listToString(neigh.candidate));
+          break;
+        }
+
+      default:
+        return;
+    }
+
+    System.out.println("\n[ Simulated Annealing ? ]");
+    System.out.println("1) Sim\n" + "2) Não\n");
+
+    int s = in.nextInt();
+    switch (s) {
+      case 1:
+        {
+          Polygon poly = new Polygon(g);
+          System.out.println("\n[ APPLIED SIMULATED ANNEALING ]");
+          System.out.println("[ RESULT: ]");
+
+          poly.simulatedAnnealing();
+
+          System.out.println(neigh.listToString(poly.current.candidate));
+          break;
+        }
+
+      default:
+        break;
+    }
+  }
+}
