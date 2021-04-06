@@ -111,7 +111,7 @@ public class Graph {
   }
 
   public void nearest() {
-    int randA = (int) (Math.random() * (size));
+    int randA = (int) (Math.random() * (nodes.size()));
     Node a = nodes.get(randA);
 
     findNearest(a);

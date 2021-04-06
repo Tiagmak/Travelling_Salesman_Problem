@@ -33,7 +33,7 @@ public class Polygon {
       if (delta < 0) {
         current_candidate = next.candidate;
       } else {
-        double prob_accept_worse = Math.pow(Math.E, (delta / temperature));
+        double prob_accept_worse = Math.pow(Math.E, (-delta / temperature));
         if (prob_accept_worse > Math.random()) {
           current_candidate = next.candidate;
         }

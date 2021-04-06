@@ -55,7 +55,7 @@ public class Utils {
     //  Discover the length of segment A-B.
     distanceAB = Math.sqrt(point_bx * point_bx + point_by * point_by);
 
-    //  (2) Rotate the system so that point B is on the positive X axis.
+    // Rotate the system so that point B is on the positive X axis.
     cosine = point_bx / distanceAB;
     sine = point_by / distanceAB;
     newX = point_cx * cosine + point_cy * sine;
@@ -68,13 +68,11 @@ public class Utils {
     //  Fail if segment C-D doesn't cross line A-B.
     if (point_cy < 0. && point_dy < 0. || point_cy >= 0. && point_dy >= 0.) return false;
 
-    //  (3) Discover the position of the intersection point along line A-B.
+    // Discover the position of the intersection point along line A-B.
     ABpos = point_dx + (point_cx - point_dx) * point_dy / (point_dy - point_cy);
 
     //  Fail if segment C-D crosses line A-B outside of segment A-B.
     return !(ABpos < 0.) && !(ABpos > distanceAB);
-
-    //  Success.
   }
 
   public int checkPerimeter(boolean first, Point a, Point b, Point c, Point d) {

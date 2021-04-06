@@ -85,7 +85,7 @@ public class Neighbour {
     perimeterFirst = utils.checkPerimeter(true, point_a, point_b, point_c, point_d);
 
     /* SECOND OPTION */
-    // A B C D => A C B D => A C D B => A D C B
+    // A B C D => A C B D => A D C B
     LinkedList<Point> candidate2 = new LinkedList<>();
     for (Point p : candidate1) {
       candidate2.addLast(p);
