@@ -134,13 +134,11 @@ public class Core {
     switch (s) {
       case 1:
         {
-          Polygon poly = new Polygon(g);
+          Polygon poly = new Polygon(g.nearest);
           System.out.println("\n[ APPLIED SIMULATED ANNEALING ]");
           System.out.println("[ RESULT: ]");
 
           poly.simulatedAnnealing();
-
-          System.out.println(neigh.listToString(poly.current.candidate));
           break;
         }
 

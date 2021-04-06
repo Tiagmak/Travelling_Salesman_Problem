@@ -2,32 +2,30 @@ import java.awt.*;
 import java.util.LinkedList;
 
 public class Polygon {
-  public Neighbour current;
   public Graph graph;
+  private final LinkedList<Point> nearest;
 
-  public Polygon(Graph graph) {
-    this.graph = graph;
-    this.graph.nearest();
+  public Polygon(LinkedList<Point> nearest) {
+    this.nearest = nearest;
   }
 
   public void simulatedAnnealing() {
     double temperature = 1000;
     double delta;
+    Neighbour current = new Neighbour();
+    current.add(this.nearest);
+    current.gen();
+    LinkedList<Point> current_candidate = current.neighbours.get(0);
 
-    this.current = new Neighbour();
-    this.current.add(graph.nearest);
-    this.current.gen();
-    LinkedList<Point> current_candidate = this.current.neighbours.get(0);
+    current.add(current_candidate);
+    current.gen();
 
-    this.current.add(current_candidate);
-    this.current.gen();
-
-    int intxnsCurrent = this.current.neighbours.size();
+    int intxnsCurrent = current.neighbours.size();
     int intxnsNext;
 
-    while (this.current.neighbours.peekFirst() != null) {
+    while (current.neighbours.peekFirst() != null && temperature > 0.0) {
       Neighbour next = new Neighbour();
-      next.add(this.current.lowestConflictsCandidate());
+      next.add(current.lowestConflictsCandidate());
       next.gen();
       intxnsNext = next.neighbours.size();
 
@@ -43,10 +41,12 @@ public class Polygon {
 
       temperature *= 0.95;
 
-      this.current = new Neighbour();
-      this.current.add(current_candidate);
-      this.current.gen();
-      intxnsCurrent = this.current.neighbours.size();
+      current = new Neighbour();
+      current.add(current_candidate);
+      current.gen();
+      intxnsCurrent = current.neighbours.size();
     }
+
+    System.out.println(current.listToString(current.candidate));
   }
 }

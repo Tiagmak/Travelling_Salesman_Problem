@@ -26,15 +26,12 @@ public class Graph {
   }
 
   public boolean contains(Point givenPoint) {
-    int i = 0;
+    if (nodes.isEmpty()) return false;
 
-    if (getSize() == 0) return false;
-
-    while (i < getSize()) {
-      if (nodes.get(i).point.equals(givenPoint)) {
-        return true;
-      }
-      ++i;
+    for (Node n : nodes) {
+        if (n.point.equals(givenPoint)) {
+          return true;
+        }
     }
     return false;
   }
@@ -45,7 +42,7 @@ public class Graph {
   }
 
   public void graphRandom(int n, int i, int min, int max) {
-    if (i == n) return;
+    if (i >= n) return;
 
     int x = (int) (Math.random() * (max - min + 1) + min);
     int y = (int) (Math.random() * (max - min + 1) + min);

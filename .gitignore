@@ -3,7 +3,10 @@
 
 nearestNeighbour/nearestNeighbour.iml
 out/*
-
+venv/*
+.gradle
+.idea
+rpg.iml
 # Log file
 *.log
 

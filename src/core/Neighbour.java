@@ -15,13 +15,11 @@ public class Neighbour {
   }
 
   public void add(LinkedList<Point> new_candidate) {
-    this.candidate.clear();
     this.candidate = new LinkedList<>();
     this.candidate = new_candidate;
   }
 
   public void gen() {
-    this.neighbours.clear();
     this.neighbours = new LinkedList<>();
     LinkedList<Point> possible_candidate;
     int a, c;
