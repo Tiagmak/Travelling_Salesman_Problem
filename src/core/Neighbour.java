@@ -6,16 +6,12 @@ public class Neighbour {
   public LinkedList<LinkedList<Point>> neighbours;
   public LinkedList<Point> candidate;
   public double min_perimeter;
-  public Point p_intxn_prev;
-  public Point p_intxn_cur;
 
   public Neighbour() {
     utils = new Utils();
     neighbours = new LinkedList<>();
     candidate = new LinkedList<>();
     min_perimeter = Double.MAX_VALUE;
-    p_intxn_prev = new Point();
-    p_intxn_cur = new Point();
   }
 
   public void add(LinkedList<Point> new_candidate) {

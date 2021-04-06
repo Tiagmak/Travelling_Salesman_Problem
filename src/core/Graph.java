@@ -65,7 +65,11 @@ public class Graph {
     for (Node node : nodes) {
       s.append("(").append(node.point.x).append(",").append(node.point.y).append(")");
     }
-    s.append("(").append(nodes.getFirst().point.x).append(",").append(nodes.getFirst().point.y).append(")");
+    s.append("(")
+        .append(nodes.getFirst().point.x)
+        .append(",")
+        .append(nodes.getFirst().point.y)
+        .append(")");
     s.append("\n");
 
     return s.toString();
