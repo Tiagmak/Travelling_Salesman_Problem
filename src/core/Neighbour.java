@@ -25,8 +25,8 @@ public class Neighbour {
     int a, c;
     boolean last = false;
 
-    for (int i = 0; i <= candidate.size() - 4; ++i) {
-      for (int j = i + 1; j <= candidate.size() - 2; ++j) {
+    for (int i = 0; i < candidate.size() - 4; ++i) {
+      for (int j = i + 1; j < candidate.size() - 2; ++j) {
 
         a = i;
         c = j;

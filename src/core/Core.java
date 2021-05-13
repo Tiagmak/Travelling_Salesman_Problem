@@ -40,10 +40,14 @@ public class Core {
 
     System.out.println("\n[ Original graph: ]" + "\n" + g.graphRandomToString() + "\n");
 
-    Neighbour neigh = new Neighbour();
+    // Applying nearest neighbour first
     g.nearest();
+
+    // Generating nearest neighbour first graph's neighbours
+    Neighbour neigh = new Neighbour();
     neigh.add(g.nearest);
     neigh.gen();
+
     System.out.println("[ Nearest-neighbour first graph: ]" + "\n" + neigh.listToString(g.nearest));
     System.out.println("[ Number of intersections: " + neigh.neighbours.size() + " ]\n");
 
@@ -72,7 +76,9 @@ public class Core {
           System.out.println("\n[ APPLIED LOWEST PERIMETER (best-improvement first) ]");
           System.out.println("[ RESULT: ]");
 
-          while (!neigh.neighbours.isEmpty()) {
+          // Generate new candidates while there are still intersections
+          while (neigh.neighbours.size() > 0) {
+            // Adding lowest perimeter candidate and generating it's neighbours
             neigh.lowestPerimeterCandidate();
             neigh.gen();
           }
@@ -88,7 +94,7 @@ public class Core {
           System.out.println("\n[ APPLIED FIRST CANDIDATE (first-improvement) ]");
           System.out.println("[ RESULT: ]");
 
-          while (!neigh.neighbours.isEmpty()) {
+          while (neigh.neighbours.size() > 0) {
             neigh.add(neigh.neighbours.get(0));
             neigh.gen();
           }
@@ -104,7 +110,7 @@ public class Core {
           System.out.println("\n[ APPLIED LEAST CONFLICTS ]");
           System.out.println("[ RESULT: ]");
 
-          while (!neigh.neighbours.isEmpty()) {
+          while (neigh.neighbours.size() > 0) {
             neigh.add(neigh.lowestConflictsCandidate());
             neigh.gen();
           }
@@ -121,7 +127,7 @@ public class Core {
           System.out.println("\n[ APPLIED RANDOM CANDIDATE ]");
           System.out.println("[ RESULT: ]");
 
-          while (!neigh.neighbours.isEmpty()) {
+          while (neigh.neighbours.size() > 0) {
             neigh.randomCandidate();
             neigh.gen();
           }
