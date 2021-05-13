@@ -25,7 +25,7 @@ public class Polygon {
 
     long startTime = System.nanoTime();
 
-    while (current.neighbours.peekFirst() != null && temperature > 0.0) {
+    while (current.neighbours.peekFirst() != null && temperature > 0.000000001) {
       Neighbour next = new Neighbour();
       next.add(current.lowestConflictsCandidate());
       next.gen();
@@ -41,7 +41,7 @@ public class Polygon {
         }
       }
 
-      temperature *= 0.95;
+      temperature *= 0.98;
 
       current = new Neighbour();
       current.add(current_candidate);
