@@ -52,10 +52,11 @@ public class Utils {
     point_dx -= point_ax;
     point_dy -= point_ay;
 
-    //  Discover the length of segment A-B.
+    // Discover the length of segment A-B.
     distanceAB = Math.sqrt(point_bx * point_bx + point_by * point_by);
 
     // Rotate the system so that point B is on the positive X axis.
+    // https://doubleroot.in/lessons/coordinate-geometry-basics/translation-rotation-examples/
     cosine = point_bx / distanceAB;
     sine = point_by / distanceAB;
     newX = point_cx * cosine + point_cy * sine;
